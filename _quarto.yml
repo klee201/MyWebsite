@@ -9,6 +9,7 @@ website:
       - href: index.qmd
         text: Home
       - projects.qmd
+      - 604_Final_check-in_2.qmd
     tools:
       - icon: linkedin
         href: https://www.linkedin.com/in/kuan-cheng-lee/
@@ -16,7 +17,7 @@ website:
         href: https://github.com/klee201/MyWebsite
   page-footer:
     right: "Built with [Quarto](https://quarto.org/)"
-    left: "&copy; Copyright 2023, YOUR NAME"
+    left: "&copy; Copyright 2025, Kuan-Cheng Lee"
 
 format:
   html:

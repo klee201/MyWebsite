@@ -1,0 +1,389 @@
+---
+title: "DACSS604_Final_Project"
+author: "Kuan-Cheng Lee"
+editor: visual
+format: 
+  html: 
+    embed-resources: true
+    self-contained-math: true
+---
+
+## Research Question and Hypothesis
+
+**How do the thematic content and emotional framing of YouTube comments about the "Suicide of Fat Cat" event relate to comment engagement (like count and reply count)?**
+
+-   **Null Hypothesis** (H₀):There is no significant linear relationship between the content themes of a comment (as represented by any topic probability from the LDA model) and its community engagement metrics ($\text{likeCount}$ and $\text{reply}$ count).
+
+-   **Alternative Hypothesis** (H₁):Comment content, specifically themes emphasizing emotional narratives and interpersonal relationships (e.g., Topic 3), will significantly predict higher community engagement ($\text{likeCount}$ and $\text{reply}$ count).
+
+## Data Collection
+
+To explore the concept of **"simping,"** I collected **YouTube comments** from six relevant videos for textual analysis. I utilized an **R scraping script** to extract approximately **8,000 comments** in total. Following a cleaning and filtering process, a dataset of around **7,000 practical comments** was retained for analysis.
+
+I specifically focused on the case study known as the **"胖貓跳江事件" (Suicide of Fat Cat)**. This event, which occurred in **Mainland China**, provides a particularly rich and relevant dataset because it was a **well-documented news story officially reported by the Chinese court**. This official documentation makes it a **real and verifiable event**, distinguishing it from mere rumors or social media anecdotes. Furthermore, the use of **Chinese-language videos** as the reference source is critical, as the Chinese-speaking audience possesses **extensive background knowledge and cultural context** directly related to the local details of this incident.
+
+1.  **SIMP001 - 陪打遊戲賺百萬養女友慘遭分手！「胖貓事件」引爆中國性別戰爭？「撈女」滿街跑的背後原因？【TODAY 看世界】[(https://www.youtube.com/watch?v=o5TfkwlthWU&t=13s)](https://www.youtube.com/watch?v=o5TfkwlthWU&t=13s) 1952 comments from 11/04/2025**
+
+2.  **SIMP002 - 当胖猫遇到捞女，一个年轻人如何走上不归路？｜女权｜捞女｜胖猫｜王者荣耀｜男女平权｜日本｜梅大高速｜舆论控制｜王局拍案20240507 [(https://www.youtube.com/watch?v=39Gq_eOPuDY&t=1s)](https://www.youtube.com/watch?v=39Gq_eOPuDY&t=1s) 3731 comments from 11/04/2025**
+
+3.  **SIMP003 - 老梁：给“胖猫”多条选择 重庆“胖猫事件”不是性别大战 如何避免成为“胖猫”[(https://www.youtube.com/watch?v=mjcgg0wFpfE)](https://www.youtube.com/watch?v=mjcgg0wFpfE) 997 comments from 11/04/2025**
+
+4.  **SIMP004 - 小伙為愛跳江，拜金的女友，吸血的親姐，無良的商家，瘋狂的網民，誰才是加害者？為何警察認定女友無罪，反而是親姐違了法？一口氣看完胖貓事件始末！\| Wayne調查[(https://www.youtube.com/watch?v=igs7GoIU4MU)](https://www.youtube.com/watch?v=igs7GoIU4MU) 615 comments from 11/04/2025**
+
+5.  **SIMP005 - 神級陪玩「胖貓」遭詐乾227萬亡 女友道歉｜20240506 ET午間新聞 [(https://www.youtube.com/watch?v=tAE83zZEcOY)](https://www.youtube.com/watch?v=tAE83zZEcOY) 402 comments from 11/04/2025**
+
+6.  **SIMP006 - 被撈女騙光50萬，遊戲宅男跳江自殺，轟動全網！撈女譚竹榨乾胖貓事件真相！『新闻最嘲点 姜光宇』2024.0508[(https://www.youtube.com/watch?v=YYngd2Yt3zk)](https://www.youtube.com/watch?v=YYngd2Yt3zk) 271 comments from 11/04/2025**
+
+```{r library}
+library(plyr)
+library(dplyr)
+library(stringr)
+library(tidytext)
+library(readr)
+library(purrr)
+library(chromote)
+library(stargazer)
+library(readxl)
+library(ggplot2)
+library(tibble)
+library(nnet)
+library(corrplot)
+library(tm)
+library(wordcloud)
+library(quanteda)
+library(rvest)
+library(jsonlite)
+library("quanteda.textplots")
+library(httr)
+library(RColorBrewer)
+library(RedditExtractoR)
+library(httr2)
+library(tidyr)
+
+```
+
+```{r scrape and collect yt command}
+
+data1 <- read.csv("Final_project_data/CN_SIMP001_comments.csv")
+data2 <- read.csv("Final_project_data/CN_SIMP002_comments.csv")
+data3 <- read.csv("Final_project_data/CN_SIMP003_comments.csv")
+data4 <- read.csv("Final_project_data/CN_SIMP004_comments.csv")
+data5 <- read.csv("Final_project_data/CN_SIMP005_comments.csv")
+data6 <- read.csv("Final_project_data/CN_SIMP006_comments.csv")
+
+```
+
+## Data Cleaning (info for the poster
+
+**ALSO GUIDE IT TO THE PART WHICH I WANT** **PLUS PRESENT THE CLEAN FORMAT IN THE POSTER**
+
+The raw dataset, collected as several CSV files, initially contained detailed comment metadata. The original structure included columns such as: `videoId`, `commentId`, `parentId`, `author`, **`text`**, **`likeCount`**, `publishedAt`, `updatedAt`, `viewerRating`, `canRate`, and **`reply`**.
+
+For data cleaning, all CSV files in the `Final_project_data` folder were systematically processed using the **R environment**. The initial step was to **streamline the dataset** by retaining only the essential variables for textual and engagement analysis: **`text`**, **`likeCount`**, and **`reply`**.
+
+I utilized the R packages `dplyr` and `stringr` to focus on standardizing the **`text`** column. This involved a series of cleaning operations: **normalization of whitespace** (removing line breaks, tabs, and extra spaces, and trimming leading/trailing whitespace) and **character filtering**. Crucially, I removed non-essential symbols and unusual characters while **meticulously preserving all Chinese characters** to ensure the comments remained culturally authentic and meaningful for subsequent analysis.
+
+Finally, each cleaned and standardized dataset was saved as a new CSV file, appended with the suffix `_cleaned`. **UTF-8 encoding** was explicitly used to guarantee the accurate representation of the Chinese characters. This systematic workflow ensures the comment data are tidy, standardized, and immediately ready for downstream procedures, such as tokenization and sentiment or frequency analysis.
+
+```{r data cleaning}
+
+source("data_cleaning_CN.R")
+
+SIMP001 <- read.csv("Final_project_data/CN_SIMP001_comments.csv")
+
+#Present the eample of the result
+head(SIMP001)
+
+data1_cleaned <- read.csv("Final_project_data/CN_SIMP001_comments_cleaned.csv")
+data2_cleaned <- read.csv("Final_project_data/CN_SIMP002_comments_cleaned.csv")
+data3_cleaned <- read.csv("Final_project_data/CN_SIMP003_comments_cleaned.csv")
+data4_cleaned <- read.csv("Final_project_data/CN_SIMP004_comments_cleaned.csv")
+data5_cleaned <- read.csv("Final_project_data/CN_SIMP005_comments_cleaned.csv")
+data6_cleaned <- read.csv("Final_project_data/CN_SIMP006_comments_cleaned.csv")
+
+
+```
+
+## Preprocess the data
+
+For visualizing the dominant linguistic patterns within the comment data, I employed two complementary approaches. First, a **Word Cloud visualization** (generated using the `Word_cloud_visualization.R` script) provided an intuitive, qualitative representation of high-frequency words, instantly highlighting the most common terms associated with discussions of "SIMP" behavior.
+
+Second, I conducted a **quantitative rank-frequency analysis** by applying **Zipf's Law** to the word corpus. After arranging all unique words by descending frequency and assigning a rank, I plotted the resulting distribution using the `ggplot2` package. The resulting visualization confirmed that the comment discourse adheres to a Zipfian distribution, where a few words account for a disproportionate share of the total vocabulary.
+
+The key terms driving the discourse were clearly identifiable:
+
+These visualizations collectively offer both **quantitative validation** (Zipf's Law distribution) and **qualitative insight** (Word Cloud/Top Terms) into how the audience discusses and perceives the central event and the related concept of "SIMP" behavior in this context. The high frequency of questioning and uncertainty (為什麼, 不知道, 是不是) coupled with terms of exploitation (pua) and suffering (受害者) reveals a key focus on **moral judgment and accountability** in the discussion.
+
+```{r TOKENIZATION}
+
+
+source("TOKENIZATION.R")
+
+
+SIMP001_comments_tokens <- read.csv("Final_project_data/CN_SIMP001_comments_tokens.csv")
+#Present the eample of the result
+head(SIMP001_comments_tokens)
+
+```
+
+```{r Word_frequency}
+
+
+
+source("Word_frequency.R")
+
+SIMP001_wordfreq <- read.csv("Final_project_data/CN_SIMP001_comments_wordfreq.csv")
+
+#Present the eample of the result
+head(SIMP001_wordfreq)
+```
+
+```{r Same_Word}
+
+source("Same_Word.R")
+
+
+common_words <- read.csv("Final_project_data/common_words_across_files.csv")
+
+#Present the eample of the result
+head(common_words)
+
+
+```
+
+```{r Change_to_Traditional_Chinese}
+
+
+source("Change_to_Traditional_Chinese.R")
+
+Traditional_Chinese_data_cleaned <- read.csv("Final_project_data/traditional_common_words_combined.csv")
+
+#Present the data after cleaning
+head(Traditional_Chinese_data_cleaned)
+
+```
+
+## Visualization
+
+For visualizing patterns in the comments, I used two approaches. First, the `Word_cloud_visualization.R` script generated word clouds to highlight high-frequency words, providing a clear and intuitive view of the most common terms associated with discussions of “SIMP” behavior. Second, I applied Zipf’s Law to examine the relationship between word rank and frequency. After arranging words by descending frequency and assigning ranks, I plotted all words using `ggplot2`, labeling only the top five most frequent words to emphasize the key terms in the discourse. The resulting visualizations offer both quantitative and qualitative insight into how people discuss and perceive “SIMP” behavior in YouTube comments.
+
+```{r Word_cloud_visualization}
+
+
+source("Word_cloud_visualization.R")
+
+
+```
+
+```{r Zipf}
+
+# Sort by frequency and assign ranks
+zipf_data_ranked <- Traditional_Chinese_data_cleaned %>%
+  arrange(desc(total_count)) %>%
+  mutate(rank = row_number())
+
+# Print the top 5 ranked words to confirm the data structure
+print(head(zipf_data_ranked, 5))
+
+# --- Linear Scale (As Requested) ---
+
+ggplot(zipf_data_ranked, aes(x = rank, y = total_count)) +
+  geom_line(color = "steelblue") +
+  geom_point(color = "darkorange", size = 1.5) +
+  geom_text(
+    # Label the top 8 words
+    aes(label = ifelse(rank <= 6, traditional_text, "")),
+    vjust = -0.8,
+    size = 3.5,
+    check_overlap = TRUE # Prevents overlapping labels
+  ) +
+  labs(
+    title = "Zipf’s Law: Word Rank vs Frequency",
+    x = "Rank of Word",
+    y = "Frequency"
+  ) +
+  theme_minimal(base_size = 13)
+
+
+
+
+
+```
+
+**Translation**
+
+|          |          |                               |
+|----------|----------|-------------------------------|
+| **Rank** | **Word** | **Translate**                 |
+| 1        | 為什麼   | **"Why / Why is it that..."** |
+| 2        | 不知道   | **"Don't know"**              |
+| 3        | 受害者   | **"Victim"**                  |
+| 4        | pua      | **"PUA"**                     |
+| 5        | 是不是   | **"Is it / Is it not?"**      |
+| 6        | 女朋友   | **"Girlfriend"**              |
+
+## Word Embedding
+
+For semantic analysis, I applied Word2Vec using a pseudo-document approach to capture relationships between words in the comments. Each word was repeated according to its frequency (`total_count`) to create co-occurrence information, which is essential for small datasets where natural co-occurrences are limited. The repeated words were then combined into a single space-separated pseudo-document and used to train a skip-gram Word2Vec model with a vector dimension of 50, window size of 5, and 50 iterations, setting `min_count = 1` to include all words.
+
+The resulting word vectors allow calculation of cosine similarity to examine semantic relationships between words, as well as clustering and downstream supervised learning tasks. For example, the vector for a keyword such as “為什麼” can be compared with all other word vectors to identify the top semantically similar words, revealing patterns in how concepts related to “SIMP” behavior are discussed in YouTube comments. This approach provides a robust representation of word meaning in the context of the dataset while accommodating the limited co-occurrence information inherent in smaller comment datasets.
+
+```{r Word Embeddings}
+
+# Word2Vec can be the best option for the word embeding.
+
+source("Word Embeddings.R")
+
+
+
+```
+
+## Sentiment Analysis
+
+For sentiment analysis, I applied a custom Chinese sentiment dictionary tailored to the context of “SIMP” behavior. The dictionary categorizes words into three groups: **positive** (supportive or relationship-related words such as “女朋友” and “關心”), **negative** (critical or unfairness-related words such as “不值得” and “不公平”), and **behavior** (attention-seeking or “simp” behavior words such as “pua” and “追求”). Using R, I computed sentiment scores for each word in the dataset by summing occurrences in these categories. A raw polarity score was calculated as the sum of positive and behavior counts minus negative counts, then normalized by the total occurrences of all dictionary words to produce a relative polarity measure.
+
+The analysis revealed that the current positive and negative categories do not fully capture the sentiment expressed in the comments. Some words were misclassified or contextually ambiguous, highlighting that the dictionary needs further adjustment and refinement to improve accuracy. Polarity distributions were visualized using a histogram, providing an overview of how positive, negative, and behavior-related language appears in discussions of “SIMP” behavior. This approach provides a preliminary sentiment assessment while acknowledging the limitations of the existing dictionary.
+
+```{r Sentiment Analysis}
+
+
+
+source("Sentiment Analysis.R")
+
+
+
+```
+
+In this graph:
+
+**X-Axis: Simping Label:**
+
+-   **FALSE:** Comments that **do not** contain any of the words from your custom "simp" dictionary (e.g., "舔狗," "工具人," "一廂情願," etc.).
+
+-   **TRUE:** Comments that **do** contain at least one word from your custom "simp" dictionary.
+
+**Y-Axis: Comment Sentiment Score**:
+
+-   **Positive Scores (above 0):** Indicate a more **positive** overall sentiment.
+
+-   **Zero (0):** Indicates a **neutral** or balanced sentiment.
+
+-   **Negative Scores (below 0):** Indicate a more **negative** overall sentiment.
+
+## Sentiment Analysis Summary
+
+The lexicon-based sentiment analysis, utilizing the NTUSD dictionary, reveals a pronounced **negative emotional shift** in texts discussing the "simp" phenomenon. Specifically, content that contains terms from the custom dictionary—which targets themes like **"simp behavior"** (e.g., *舔狗, simp*), **"victim position"** (e.g., *受害者, pua*), and **"relationship imbalance"**—shows a highly negative mean sentiment score of **-0.477**. This score is significantly more negative than the average score of **-0.0990** found in texts that do not contain these specific terms. This sharp difference (a nearly five-fold increase in negative sentiment magnitude) indicates that conversations about excessive one-sided effort, perceived exploitation, and unequal relationships—the core of the "simp" concept—are strongly associated with **negative emotional discourse** within the corpus.
+
+## Supervised Learning Analysis (Naive Bayes Classification)
+
+The Naive Bayes model was employed to classify comments based on whether they contained the "simp" factor, using a **cleaned feature set** that excluded all words from the custom "simp" dictionary to prevent data leakage. The model achieved an overall **Accuracy of 81.69%**, which is slightly higher than the No Information Rate (NIR) of 80.36%, indicating its performance is marginally better than random guessing based on class prevalence.
+
+However, a closer look at the results reveals a significant **class imbalance issue** and skewed performance:
+
+-   **High Sensitivity (Recall):** The model is excellent at correctly identifying comments that **do NOT contain** the simp factor (the majority class, `FALSE`), with a high **Sensitivity of 95.72%**.
+
+-   **Low Specificity:** Conversely, the model is very poor at correctly identifying comments that **DO contain** the simp factor (the minority class, `TRUE`), with a low **Specificity of 24.29%**.
+
+-   **Kappa Value:** The **Kappa statistic of 0.2565** suggests only a **fair** level of agreement beyond chance.
+
+In summary, the high overall accuracy is largely driven by correctly classifying the prevalent negative class (`FALSE`). The model struggles to reliably identify actual "simp" comments (`TRUE`), suggesting that the remaining general vocabulary in the comments **lacks sufficient predictive power** to consistently distinguish between the two categories without the core dictionary terms.
+
+```{r supervised Learning}
+
+source("Supervised_Learning.R")
+
+```
+
+## Topic Modeling (LDA)
+
+The script follows a standard text mining workflow using the `tidyverse` and `text2vec` packages:
+
+1.  **Data Preparation:** It reads the individual tokenized comment files, reconstructs the full comments by assigning and aggregating tokens by a unique **document ID** (`doc_id`), and then combines the tokens back into complete text strings.
+
+2.  **Feature Engineering:** It creates an iterator from the aggregated text and builds a vocabulary. Crucially, it **prunes the vocabulary** by removing words that occur less than three times (`term_count_min = 3`), which helps reduce noise and improves the quality of the derived topics.
+
+3.  **DTM Creation:** The processed tokens are converted into a **Document-Term Matrix (DTM)**, which is the input required for LDA.
+
+4.  **Model Training:** The script initializes and trains an LDA model with a predefined number of topics (**K=8**) and **500 iterations**.
+
+5.  **Output:** Finally, the code extracts and saves two key results: the **Topic-Word distribution** (the top 10 most characteristic words for each of the 8 topics) and the **Document-Topic distribution** (the probability that each comment belongs to each topic), storing both as CSV files for subsequent qualitative analysis.
+
+```{r Topic Model}
+
+source("Topic_Model.R")
+
+```
+
+**Translation for the every words in the topics**
+
+|  |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| **Topic_Word_Rank** | **Topic_0** | **Topic_1** | **Topic_2** | **Topic_3** | **Topic_4** | **Topic_5** | **Topic_6** | **Topic_7** |
+| **Word_1** | **PUA** | Don't know | **Victim** | Is it? | **Why** | Don't know | And not | **Buffet** (Resource) |
+| **Word_2** | Why | Over 10k yuan | Why | **Girlfriend** | **Be together** | More and more | This matter | Highway |
+| **Word_3** | **Chinese people** | **PUA** | **PUA** | Why | Also can | **Majority** | Don't know | Too good |
+| **Word_4** | Boy / Male | Possibly | Truly is | Don't know | Impossible | Are not all | Must be | Why |
+| **Word_5** | Girl / Female | A person | **McDonald's** | Don't need | Don't have at all | Truly is | **Girlfriend** | Mainly is |
+| **Word_6** | Also is not | This matter | **Family's** | Also don't have | This is | **Victim** | Can or cannot | Some people |
+| **Word_7** | Is it? | Chinese people | Whole world | **Majority** | Also don't have | **Girlfriend** | **RMB** (Money) | **Inequality** |
+| **Word_8** | Nothing much | Especially | Actually is | **Boyfriend** | **Male Superiority** | I know | **Trash Can** (Worthless) | Should be |
+| **Word_9** | Possibly | Truly is | Seems like | **Gender Equality** | Nothing much | Is it? | Some people | A person |
+| **Word_10** | **Not worth it** | Why | Definitely is | So-called | Does not exist | Also is not | Why | **Gender Equality** |
+
+**The interpretation for each topic**
+
+|  |  |  |
+|----|----|----|
+| **Topic** | **Core Keywords & Interpretation** | **Suggested Topic Label** |
+| **Topic 0** | This topic strongly links the PUA phenomenon with discussions about **specific gender roles and identities** within the Chinese context. The presence of **"Not worth it"** suggests this cluster is focused on **evaluating the value** of actions/relationships under the PUA framework. | **PUA & Gender Dynamics in China** |
+| **Topic 1** | This topic mixes **uncertainty** and **specific financial figures** (*Over 10k yuan*), directly linked to **PUA**. It suggests discussions about **high-stakes financial loss** or investment by an individual in a relationship where the outcome or reality is unclear. | **Financial Dimension of PUA & Uncertainty** |
+| **Topic 2** | The simultaneous presence of **"Victim," "PUA,"** and **"Truly is"** indicates a core discussion cluster dedicated to **validating the existence and reality** of being exploited. **"McDonald's"** implies cheap/casual provision, while **"Family's"** suggests the conversation may touch on the origins or impact of these dynamics within a family unit. | **Validating Victimhood & Low-Cost Exploitation** |
+| **Topic 3** | This topic is saturated with **questioning terms** ("Is it?", "Why?", "Don't know"), applied directly to **boyfriend/girlfriend** roles and the concept of **gender equality**. It represents a pervasive atmosphere of **skepticism** and **critical discussion** about expected behavior in modern relationships. | **Skepticism & Questioning of Relationship Roles** |
+| **Topic 4** | A highly polarized topic that **denies** (*不可能, 不存在*) the relevance or existence of **Male Superiority** (*男尊女卑*). It focuses on the possibility of **being together** (*在一起*), suggesting a desire for modern, equal partnerships and a strong **rejection of patriarchal norms**. | **Denial of Traditional Patriarchy in Relationships** |
+| **Topic 5** | Terms like **"More and more"** and **"Majority"** point to a discussion of **social trends and scale**. When combined with **"Victim"** and **"Girlfriend,"** it indicates a conversation about whether **victimhood is becoming increasingly common** or if the perception of victimhood is changing within the female partner role. | **Discussing Shifting Social Norms & Victim Pool** |
+| **Topic 6** | This is the most explicitly **transactional** topic. It discusses **financial payment** (**RMB**) and the concept of a person being reduced to a **"Trash Can"** (worthless/emotional dumping ground). The use of **"And not"** suggests a debate over what a relationship *should* be versus what it currently *is* (i.e., not a transaction, but one of money/exploitation). | **Monetary Value vs. Emotional Worth (The Price of Simping)** |
+| **Topic 7** | This topic links **resource provision** (implied by **"Buffet"** and "Highway," often used as metaphors for free/easy access) with discussions of **Inequality** and **Gender Equality**. It debates whether resources should be provided freely, who is responsible for providing them, and the resulting fairness in the relationship structure. | **Resource Provision & Equality Debate** |
+
+|         |                     |
+|---------|---------------------|
+| **DTM** | **Topic_Word_Rank** |
+| V1      | Topic_0             |
+| V2      | Topic_1             |
+| V3      | Topic_2             |
+| V4      | Topic_3             |
+| V5      | Topic_4             |
+| V6      | Topic_5             |
+| V7      | Topic_6             |
+| V8      | Topic_7             |
+
+## Causal Inference
+
+In the casual inference part, I present the Ordinary Least Squares (OLS) regression model to analyze how the probability of eight LDA topics influences the number of likes received by a comment (likeCount). Topic V8 (PUA/Victim) was set as the reference group (Reference Topic) in the model. Overall, the model's explanatory power is extremely low ($\text{Adjusted R-squared} = 0.00025$), suggesting that the variation in likeCount is primarily influenced by factors outside the model, rather than the topics themselves. However, the coefficient tests for individual topics revealed that Topic V2 demonstrated a statistically significant positive influence. After controlling for the effects of other topics, an increase of 1 unit in the probability of Topic V2 (Financial/Money II), relative to the reference group V8, is expected to increase the number of likes by approximately 9.66 ($p = 0.038^{*}$). This suggests that specific discussion content related to money or finance is more likely to garner attention and agreement within the community. Apart from the intercept, the remaining topics (V1, V3, V4, V5, V6, and V7) did not show a statistically significant relationship with the number of likes.
+
+```{r Casual Inference}
+
+source("Causal_Inference.R")
+
+```
+
+## Conclusion
+
+**(PUT THESE TWO POINT INTO THE FUTURE WORK** **ALSO NEED TO EXPLAIN ABOUT DIFFICULTY TO COLLECT THE ACADEMIC DATA THERE** \*\* SIMP DOES NOT HAVE A FORMAL DEFINITION\*\*
+
+"Synthesizing the project's findings, the primary discovery is that community engagement ($\text{likeCount}$) on YouTube comments is not driven by broad emotional tone or general topics, but rather by a **specific, critical narrative focused on 'financial exploitation and victimhood'** ($\text{Topic}$ $\text{V2}$). This specific form of critical discussion related to 'SIMP' behavior is **extremely negative in sentiment** ($\text{mean}$ $\text{sentiment} = -0.477$) and is so unique in its linguistic pattern that its occurrence can be accurately predicted by the supervised learning model. Consequently, the community's response to 'SIMP' behavior is **highly concentrated and emotionally charged**, with its online visibility predominantly stemming from comments that link the behavior directly to **concrete financial inequality and victim scenarios**."
+
+## Future
+
+Future work should prioritize addressing the observed limitations in both the supervised classification model and the initial data preprocessing pipeline to enhance the robustness and explanatory power of the analysis. **Firstly**, while the initial Naive Bayes classifier provided baseline insights, its predictive performance should be critically re-evaluated. Improving the accuracy of the automated *simp* classification label requires exploring more sophisticated machine learning techniques, such as **Support Vector Machines (SVMs)**, **Gradient Boosting**, or even **Transformer-based deep learning models**. Concurrently, enhancing the feature set by refining or expanding the custom dictionaries—perhaps incorporating sentiment scores or incorporating **word embeddings**—could significantly boost the model's ability to discriminate between classes, moving beyond simple bag-of-words approaches. **Secondly**, a crucial area for improvement lies in the **token filtering and data processing stage**. Despite standard removal procedures, the presence of numerous contextually irrelevant tokens, such as specific objects ("高速公路") and brands ("麥當勞"), confirms the necessity of a more rigorous, domain-specific cleanup. Future efforts must focus on constructing an expanded, **domain-aware stop word list** or implementing **Named Entity Recognition (NER)** to systematically identify and remove non-topical, low-information tokens, ensuring the remaining features are highly predictive and representative of the core concepts being discussed.
+
+## Reference
+
+HO, Daniel. The (simp)le truth about excessive & obsessive romantic behaviors in men. (2023). https://ink.library.smu.edu.sg/etd_coll/516
+
+Krishnamurthy, V., & Duan, Y. (2017). Dependence Structure Analysis Of Meta-level Metrics in YouTube Videos: A Vine Copula Approach. arXiv preprint arXiv:1712.10232. “to explain the comment and the view of the video are related”
+
+Lun-Wei Ku and Hsin-Hsi Chen (2007). Mining Opinions from the Web: Beyond Relevance Retrieval. Journal of American Society for Information Science and Technology, Special Issue on Mining Web Resources for Enhancing Information Retrieval, 58(12), pages 1838-1850.
+
+Pew Research Center. (2020). Many Americans get news on YouTube, where news organizations and independent producers thrive side by side. https://www.pewresearch.org/journalism/2020/09/28/many-americans-get-news-on-youtube-where-news-organizations-and-independent-producers-thrive-side-by-side/
+
+Zhou, W. (2024). 重庆警方发布“胖猫”事件警情通报 \[Chongqing police issue incident report on the "Pangmao" incident\]. Xinhua Net. http://www.news.cn/politics/20240519/fb56352660c94810a58e79bc18459a3e/c.html
