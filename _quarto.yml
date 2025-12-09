@@ -9,7 +9,7 @@ website:
       - href: index.qmd
         text: Home
       - projects.qmd
-      - 604_Final_check-in_2.qmd
+      - Final_check-in_2.qmd
     tools:
       - icon: linkedin
         href: https://www.linkedin.com/in/kuan-cheng-lee/
