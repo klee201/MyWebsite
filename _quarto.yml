@@ -10,7 +10,7 @@ website:
         text: Home
       - projects.qmd
     tools:
-      - icon: linkin
+      - icon: linkedin
         href: https://www.linkedin.com/in/kuan-cheng-lee/
       - icon: github
         href: https://github.com/klee201/MyWebsite
