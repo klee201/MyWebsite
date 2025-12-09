@@ -2,7 +2,7 @@
 title: "Projects"
 ---
 
-## Project 1
+## Final_Project
 
 ## Project 2
 
