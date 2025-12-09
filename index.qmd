@@ -9,11 +9,11 @@ about:
 :::{#me}
 
 ## Goals
-aaaaaaaaaa
+
 ## Education
-bbbbbbb
+
 ## Experience
-ccccccc
+
 :::
 
 Thanks for checking out my web site!
