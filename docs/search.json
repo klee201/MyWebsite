@@ -18,7 +18,7 @@
     "href": "index.html",
     "title": "About Me",
     "section": "",
-    "text": "Thanks for checking out my web site!"
+    "text": "My primary professional and academic goals are currently focused on two key areas:\n\nAcademic Completion: Successfully completing my Master’s program in the Data Analytics and Computational Social Science (DACSS) program at the University of Massachusetts Amherst (UMass Amherst).\nCareer Transition: Securing a professional position focused on Data Analysis or Data Science, where I can apply the quantitative, computational, and analytical skills gained during my studies.\n\n\n\n\n\n\nMaster of Science (M.S.), Data Analytics and Computational Social Science (DACSS) * Expected Graduation: [Insert Expected Graduation Date, e.g., May 2026] * Key Areas of Study: [Briefly list 2-3 key skills or domains, e.g., Statistical Modeling, Machine Learning, Data Visualization, Causal Inference]\n\nView My Full Curriculum Vitae (CV)\nThanks for checking out my web site!"
   },
   {
     "objectID": "604_Final_check-in_2.html",
@@ -250,5 +250,19 @@
     "title": "DACSS785_Final_Project",
     "section": "Reference",
     "text": "Reference\nHO, Daniel. The (simp)le truth about excessive & obsessive romantic behaviors in men. (2023). https://ink.library.smu.edu.sg/etd_coll/516\nKrishnamurthy, V., & Duan, Y. (2017). Dependence Structure Analysis Of Meta-level Metrics in YouTube Videos: A Vine Copula Approach. arXiv preprint arXiv:1712.10232. “to explain the comment and the view of the video are related”\nLun-Wei Ku and Hsin-Hsi Chen (2007). Mining Opinions from the Web: Beyond Relevance Retrieval. Journal of American Society for Information Science and Technology, Special Issue on Mining Web Resources for Enhancing Information Retrieval, 58(12), pages 1838-1850.\nPew Research Center. (2020). Many Americans get news on YouTube, where news organizations and independent producers thrive side by side. https://www.pewresearch.org/journalism/2020/09/28/many-americans-get-news-on-youtube-where-news-organizations-and-independent-producers-thrive-side-by-side/\nZhou, W. (2024). 重庆警方发布“胖猫”事件警情通报 [Chongqing police issue incident report on the “Pangmao” incident]. Xinhua Net. http://www.news.cn/politics/20240519/fb56352660c94810a58e79bc18459a3e/c.html"
+  },
+  {
+    "objectID": "index.html#goals",
+    "href": "index.html#goals",
+    "title": "About Me",
+    "section": "",
+    "text": "My primary professional and academic goals are currently focused on two key areas:\n\nAcademic Completion: Successfully completing my Master’s program in the Data Analytics and Computational Social Science (DACSS) program at the University of Massachusetts Amherst (UMass Amherst).\nCareer Transition: Securing a professional position focused on Data Analysis or Data Science, where I can apply the quantitative, computational, and analytical skills gained during my studies."
+  },
+  {
+    "objectID": "index.html#education",
+    "href": "index.html#education",
+    "title": "About Me",
+    "section": "",
+    "text": "Master of Science (M.S.), Data Analytics and Computational Social Science (DACSS) * Expected Graduation: [Insert Expected Graduation Date, e.g., May 2026] * Key Areas of Study: [Briefly list 2-3 key skills or domains, e.g., Statistical Modeling, Machine Learning, Data Visualization, Causal Inference]\n\nView My Full Curriculum Vitae (CV)"
   }
 ]

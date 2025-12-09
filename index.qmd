@@ -10,7 +10,19 @@ about:
 
 ## Goals
 
+My primary professional and academic goals are currently focused on two key areas:
+
+* **Academic Completion:** Successfully completing my Master's program in the Data Analytics and Computational Social Science (DACSS) program at the **University of Massachusetts Amherst (UMass Amherst)**.
+* **Career Transition:** Securing a professional position focused on **Data Analysis** or **Data Science**, where I can apply the quantitative, computational, and analytical skills gained during my studies.
+
 ## Education
+### University of Massachusetts Amherst
+**Master of Science (M.S.)**, Data Analytics and Computational Social Science (DACSS)
+* **Expected Graduation:** [Insert Expected Graduation Date, e.g., May 2026]
+* **Key Areas of Study:** [Briefly list 2-3 key skills or domains, e.g., Statistical Modeling, Machine Learning, Data Visualization, Causal Inference]
+
+---
+**[View My Full Curriculum Vitae (CV)](Lee-MasterResume-1020-DS_US.pdf)**
 
 ## Experience
 
