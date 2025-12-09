@@ -2,11 +2,13 @@
 title: "Projects"
 ---
 
-## Final Project
+## 758 Final Project
 
 * **[View Full Analysis & Report (HTML)](docs/758/Final_check-in_2.html)**
 
-## Project 2
+## 604 Final Project
+
+* **[View Full Analysis & Report (HTML)](docs/604/Final_check-in_2.html)**
 
 ## Project 3
 
