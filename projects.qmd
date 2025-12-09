@@ -4,15 +4,6 @@ title: "Projects"
 
 ## Final Project: Check-in 2
 
-<iframe 
-  src="Final_check-in_2.html" 
-  width="100%" 
-  height="900" 
-  frameborder="0"
-></iframe>
-
----
-
 ## Project 2
 
 ## Project 3
