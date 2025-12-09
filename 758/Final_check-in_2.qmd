@@ -317,7 +317,7 @@ source("Topic_Model.R")
 **Translation for the every words in the topics**
 
 |  |  |  |  |  |  |  |  |  |
-|--------|--------|--------|--------|--------|--------|--------|--------|--------|
+|----|----|----|----|----|----|----|----|----|
 | **Topic_Word_Rank** | **Topic_0** | **Topic_1** | **Topic_2** | **Topic_3** | **Topic_4** | **Topic_5** | **Topic_6** | **Topic_7** |
 | **Word_1** | **PUA** | Don't know | **Victim** | Is it? | **Why** | Don't know | And not | **Buffet** (Resource) |
 | **Word_2** | Why | Over 10k yuan | Why | **Girlfriend** | **Be together** | More and more | This matter | Highway |
@@ -333,7 +333,7 @@ source("Topic_Model.R")
 **The interpretation for each topic**
 
 |  |  |  |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | **Topic** | **Core Keywords & Interpretation** | **Suggested Topic Label** |
 | **Topic 0** | This topic strongly links the PUA phenomenon with discussions about **specific gender roles and identities** within the Chinese context. The presence of **"Not worth it"** suggests this cluster is focused on **evaluating the value** of actions/relationships under the PUA framework. | **PUA & Gender Dynamics in China** |
 | **Topic 1** | This topic mixes **uncertainty** and **specific financial figures** (*Over 10k yuan*), directly linked to **PUA**. It suggests discussions about **high-stakes financial loss** or investment by an individual in a relationship where the outcome or reality is unclear. | **Financial Dimension of PUA & Uncertainty** |

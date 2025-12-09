@@ -4,6 +4,7 @@ title: "Projects"
 
 ## Final Project
 
+* **[View Full Analysis & Report (HTML)](docs/758/Final_check-in_2.html)**
 
 ## Project 2
 
