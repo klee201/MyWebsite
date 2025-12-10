@@ -8,25 +8,15 @@ about:
 
 :::{#me}
 
-## Goals
-
-My primary professional and academic goals are currently focused on two key areas:
-
-* **Academic Completion:** Successfully completing my Master's program in the Data Analytics and Computational Social Science (DACSS) program at the **University of Massachusetts Amherst (UMass Amherst)**.
-* **Career Transition:** Securing a professional position focused on **Data Analysis** or **Data Science**, where I can apply the quantitative, computational, and analytical skills gained during my studies.
-
 ## Education
-### University of Massachusetts Amherst
-**Master of Science (M.S.)**, Data Analytics and Computational Social Science (DACSS)
-* **Expected Graduation:** [Insert Expected Graduation Date, e.g., May 2026]
-* **Key Areas of Study:** [Briefly list 2-3 key skills or domains, e.g., Statistical Modeling, Machine Learning, Data Visualization, Causal Inference]
+
+I hold a Bachelor of Science degree in Computer Science from Arizona State University, and I am currently preparing to pursue a Master's degree in Data Analysis and Computational Social Science at the University of Massachusetts Amherst. My primary academic interest lies in **data analysis**, which is driven by my enthusiasm for collecting information from various platforms and employing analytical methods to uncover intriguing patterns and phenomena, particularly when working with **text as data**. I enjoy the process of transforming raw text into actionable insights and exploring the subtle nuances hidden within large textual datasets.
 
 ---
+## Resume
+
 **[View My Full Curriculum Vitae (CV)](Lee-MasterResume-1020-DS_US.pdf)**
 
-## Experience
-
-## Future
 :::
 
 Thanks for checking out my web site!
