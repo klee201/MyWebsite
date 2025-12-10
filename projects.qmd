@@ -4,14 +4,12 @@ title: "Projects"
 
 ## 758 Final Project
 
-* **[View Full Analysis & Report (HTML)](docs/758/Final_check-in_2.html)**
+The raw dataset of approximately 8,000 YouTube comments, initially spread across six files, underwent a systematic cleaning process to prepare it for textual analysis. We first streamlined the data by retaining only the comment text, like counts, and reply status. Utilizing the `stringr` package, we normalized all whitespace and implemented crucial character filtering, deliberately preserving the full integrity of all Chinese characters to maintain cultural and contextual authenticity. The final output ensured a tidy, standardized dataset, encoded in **UTF-8**, making it immediately ready for downstream procedures like tokenization and sentiment analysis.
+
+-   [**View Full Analysis & Report (HTML)**](docs/758/Final_check-in_2.html)
 
 ## 604 Final Project
 
-* **[View Full Analysis & Report (HTML)](docs/604/Final_check-in_2.html)**
+aaaa
 
-## Project 3
-
-## Project 4
-
-## Project 5
+-   [**View Full Analysis & Report (HTML)**](docs/604/604_Final_check-in_2.html)
