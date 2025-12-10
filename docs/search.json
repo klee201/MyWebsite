@@ -494,7 +494,7 @@
     "href": "projects.html#final-project-1",
     "title": "Project",
     "section": "604 Final Project",
-    "text": "604 Final Project\naaaa\n\nView Full Analysis & Report (HTML)"
+    "text": "604 Final Project\nThe final project will follow a structured process to collect, clean, and analyze data from YouTube news channels in order to explore public trust in AI. First of all, find the top three global news organizations, such as BBC News, CNN, and Reuters, based on their reputation and audience reach. After that, I will locate their official YouTube channels and select videos with the highest view counts that discuss AI-related topics or trust in AI. This ensures that the data reflects widely viewed content and captures a diverse audience perspective. The third process, using the YouTube API and collecting the comments from the videos that I have selected. After collecting the comments, a data cleaning process will be implemented to remove irrelevant content, such as comments unrelated to AI, spam, emojis, and other unnecessary symbols. This step ensures that the dataset contains meaningful textual information for analysis. After doing the first part of the data cleaning, the comments will be sorted into categories reflecting whether the commenter expresses trust, distrust, or neutral sentiment toward AI decision-making.\n\nView Full Analysis & Report (HTML)"
   },
   {
     "objectID": "index.html#resume",
