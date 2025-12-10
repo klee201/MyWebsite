@@ -1,0 +1,129 @@
+---
+title: "Flexdashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(tidyverse) # Includes dplyr (for mutate, summarise) and readr (for read_csv)
+library(knitr)     # For kable (to create tables)
+library(stringr)   # For str_detect
+```
+
+
+```{r data import}
+# import data
+# Read CSV file
+#data1 <- read_csv("602/SP25_602_omnibus_V1_May8.csv")
+
+```
+
+```{r data processing}
+# --- FIX: Ensure the data is loaded and assigned to a variable (e.g., 'data') ---
+# This fixes the 'mutate' error by making sure 'data' is a data frame.
+data <- read_csv("602/SP25_602_omnibus_V1_May8.csv", col_types = cols(.default = "c"))
+
+# Calculate summary statistics for the plot
+df_summary <- data %>%
+  # 1. Create G13_RiskGroup by extracting the scenario name from the column
+  mutate(
+    G13_RiskGroup = case_when(
+      str_detect(Group13_AITrust_DO, "HighRisk_1") ~ "HighRisk_1",
+      str_detect(Group13_AITrust_DO, "HighRisk_2") ~ "HighRisk_2",
+      str_detect(Group13_AITrust_DO, "HighRisk_3") ~ "HighRisk_3",
+      str_detect(Group13_AITrust_DO, "LowRisk_SongColl") ~ "LowRisk_SongColl",
+      str_detect(Group13_AITrust_DO, "LowRisk_Collab") ~ "LowRisk_Collab",
+      str_detect(Group13_AITrust_DO, "LowRisk_BlogWrit") ~ "LowRisk_BlogWrit",
+      TRUE ~ "Unknown"
+    ),
+    # 2. Convert G13_DV (dependent variable) to a numeric Likert scale (1 to 5)
+    G13_DV_Likert = case_when(
+      G13_DV == "Human alone" ~ 1,
+      G13_DV == "Human assisted by AI" ~ 2,
+      G13_DV == "Collaboration between AI and Human (50-50)" ~ 3,
+      G13_DV == "AI assisted with Human" ~ 4,
+      G13_DV == "AI alone" ~ 5,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  # 3. Filter out any unknown risk groups
+  filter(G13_RiskGroup != "Unknown") %>%
+  # 4. Summarize the mean, SD, N, and Confidence Intervals (CIs)
+  group_by(G13_RiskGroup) %>%
+  summarise(
+    mean_trust = mean(G13_DV_Likert, na.rm = TRUE),
+    sd = sd(G13_DV_Likert, na.rm = TRUE),
+    n = n(),
+    se = sd / sqrt(n),
+    ci_low = mean_trust - 1.96 * se,
+    ci_high = mean_trust + 1.96 * se
+  )
+
+# Create a simplified table of key t-test results based on confirmed findings
+ttest_results <- data.frame(
+  Comparison = c("HighRisk_1 vs. LowRisk_SongColl", "HighRisk_3 vs. LowRisk_SongColl", "HighRisk_2 vs. LowRisk_SongColl (Marginal)"),
+  t_stat = c(-2.58, -2.47, -1.89),
+  p_value = c(0.011, 0.015, 0.064),
+  HighRisk_Mean = c(2.02, 2.00, 2.14),
+  LowRisk_Mean = c(2.56, 2.56, 2.56)
+)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+# Bar chart using the summary data calculated in the previous chunk
+ggplot(df_summary, aes(x = G13_RiskGroup, y = mean_trust, fill = G13_RiskGroup)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
+  # Add error bars for 95% Confidence Intervals
+  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), 
+                width = 0.2, 
+                position = position_dodge(0.9)) +
+  labs(
+    title = "Mean Trust in AI-Human Decision-Making by Risk Group",
+    x = "Scenario Condition",
+    y = "Mean Trust Score (1 = Human alone to 5 = AI alone)",
+    fill = "Risk Group"
+  ) +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  # Rotate x-axis labels to prevent overlap
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+# Use the ttest_results dataframe for a simple, clean table
+ttest_results %>%
+  select(Comparison, t_stat, p_value) %>%
+  knitr::kable(
+    caption = "Significant and Marginally Significant T-Test Comparisons",
+    col.names = c("Comparison", "$t$-statistic", "$p$-value"),
+    digits = 3
+  )
+```
+
+### Chart C
+
+```{r}
+# Use the ttest_results dataframe for a simple, clean table
+ttest_results %>%
+  select(Comparison, HighRisk_Mean, LowRisk_Mean) %>%
+  knitr::kable(
+    caption = "Mean Trust Scores for Key Comparisons (1=Human, 5=AI)",
+    col.names = c("Comparison", "High-Risk Mean", "LowRisk_SongColl Mean"),
+    digits = 2
+  )
+```
+

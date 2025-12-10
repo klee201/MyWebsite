@@ -1,0 +1,342 @@
+---
+title: "Group 13 Perception of AI Decision Making"
+subtitle: "DACSS 602 (Spring 2025)"
+author: Kuan-Cheng Lee, Melody Abraham, and Aiyman Akbar
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    toc-title: Contents
+    toc-location: left
+    html-math-method: katex
+    theme: flatly
+    smooth-scroll: true
+    link-external-icon: true
+    link-external-newwindow: true
+    citations-hover: true
+    footnotes-hover: true
+    font-size: 80%
+    df-print: paged
+    css: "styles.css"
+categories:
+  - Group Project
+---
+# Introduction
+The experiment investigates how people’s trust in decision-making varies across different risk contexts and decision agents involving artificial intelligence (AI). Participants are randomly assigned to one of six scenarios—three high-risk (e.g., urgent medical decisions) and three low-risk (e.g., playlist creation, blog writing). In each scenario, they are asked who they would trust most to make the decision: a human alone, AI alone, or a form of AI-human collaboration. The study aims to understand how perceived risk levels and task types influence trust in AI, human, and hybrid decision-makers.
+
+
+# Methodology
+This study uses a between-subjects experimental survey design to examine how people’s trust in decision-makers varies across different types of tasks and risk levels. A total of 279 participants were randomly assigned to one of six treatment conditions, each representing a unique scenario involving either a high-risk (e.g., medical diagnosis or urgent treatment decisions) or low-risk (e.g., playlist creation, blog writing, or appointment scheduling) situation. Within each scenario, participants were presented with three to five potential decision-makers: a human alone, an AI alone, or various forms of AI-human collaboration. The treatments vary both in the **risk level** (high vs. low) and in the **task domain** (e.g., healthcare vs. entertainment or routine logistics).
+
+The main outcome variable, `G13_DV`, captures the participant’s trust in the decision-maker, with response options ranging from full human control to full AI autonomy. Additional measures such as decision time and click count were collected using embedded Qualtrics timing variables to monitor engagement. Data cleaning procedures included filtering incomplete responses, handling missing values, and recoding scenario conditions into a unified variable (`G13_RiskGroup`) for analysis. Responses with invalid or blank trust answers were removed, and text responses were standardized using string matching functions. The cleaned dataset allowed for comparisons across scenarios to evaluate how task type and risk influence trust in AI and hybrid decision-making systems.
+
+### **Risk Groups Explanation**
+
+In this study, participants were exposed to different activities that were categorized into **high-risk** and **low-risk** conditions. Each condition involved different types of tasks that participants were asked to engage in, and the **perception of risk** was assessed based on their responses. These activities were framed in different ways to test how participants perceive risk in various contexts, particularly in relation to AI involvement.
+
+#### **1. HighRisk\_1:**
+
+This group involved **high-risk scenarios**, where participants were likely to face situations with significant stakes, either in terms of personal outcome, financial impact, or ethical concerns. These could have included tasks like decision-making in **medical, legal, or financial contexts**. The idea is that high-risk scenarios typically involve a greater perceived threat of negative outcomes or consequences. In this study, **HighRisk\_1** specifically involved situations where participants could experience serious consequences, with AI potentially playing a decision-making role in these high-stakes tasks.
+
+#### **2. HighRisk\_2:**
+
+This group involved **another form of high-risk scenario**, but the nature of the task may have differed slightly. The focus in this group was again on situations where the potential for harm or negative outcomes was elevated, though the specific task could have involved different types of challenges. **HighRisk\_2** was meant to examine risk perception in contexts that might be emotionally or socially risky for the participants, yet still involve high-stakes decisions. For example, it could have involved scenarios where participants had to make important judgments about people's lives, careers, or futures with AI assistance.
+
+#### **3. HighRisk\_3:**
+
+This third high-risk condition followed similar principles to the previous two, but likely involved a **different type of high-risk activity**, again with a focus on situations that could lead to severe outcomes. The goal was to assess whether the perception of risk in high-stakes environments differs based on the **specific context** and how **AI interaction** could alter risk assessments.
+
+#### **4. LowRisk\_SongColl (Low-Risk - Songwriting Collaboration):**
+
+This group involved **low-risk activities**, particularly focusing on a **collaborative songwriting task**. This scenario was framed as low-risk because there were no significant consequences involved, and participants were asked to collaborate with AI in a creative process. Despite being labeled "low-risk," the nature of the activity (involving personal creativity and AI collaboration) may have still led to heightened perceptions of risk for some participants, especially those concerned about AI "taking over" the creative process. The study aimed to explore whether collaborative, creative tasks were perceived as riskier, even though they were framed as low-risk tasks.
+
+#### **5. LowRisk\_Collab (Low-Risk - Collaborative Task):**
+
+This group also involved **low-risk** activities, but here, participants engaged in a different **collaborative task**, possibly involving teamwork with AI in a less creative context. The collaborative aspect was intended to emphasize cooperation with AI, rather than the AI acting as a sole decision-maker. This scenario examined how participants perceive risks when they work together with AI on tasks that are not inherently high-stakes but may still involve a degree of uncertainty or unpredictability.
+
+#### **6. LowRisk\_BlogWrit (Low-Risk - Blog Writing):**
+
+In this group, participants engaged in a **low-risk activity** involving **AI-assisted blog writing**. The task was framed as a simple, non-consequential task where participants could express their opinions with minimal risk of negative outcomes. While the activity was designed to be low-risk, the goal was to explore whether participants would perceive it differently, considering that their creative output might be influenced or shaped by AI suggestions. This scenario explored the balance between perceived control and the influence of AI on a personal task like writing.
+
+---
+
+### **Key Points**
+
+* **High-risk groups** involve activities that are associated with significant consequences, either in real life or in perceived impact.
+* **Low-risk groups** involve activities that are generally considered safe, but where the involvement of AI might still influence the participants' perception of risk, particularly when personal creativity or judgment is involved.
+* The study aimed to compare how **risk perception varies across tasks**, including creative, decision-making, and collaborative activities, to determine how people assess risk when AI is involved in different types of tasks.
+
+By examining these **risk groups**, the study sought to understand how **contextual factors**, like the nature of the task and the degree of AI involvement, affect individuals' **perceptions of risk**.
+
+
+# Analysis
+We used independent-samples **t-tests** to compare participants’ trust in AI-human decision-makers across different risk conditions. The dependent variable is `G13_DV_Likert`, a Likert-scale measure (1 = Human alone to 5 = AI alone) indicating participants' preferred decision-making agent. Each high-risk condition (HighRisk\_1, HighRisk\_2, HighRisk\_3) was compared separately against each low-risk condition (LowRisk\_SongColl, LowRisk\_Collab, LowRisk\_BlogWrit), resulting in multiple pairwise comparisons. This test is appropriate because we are comparing the means of a continuous outcome between two independent groups, and we checked the assumption of equal variances using F-tests before each t-test.
+
+
+```{r library}
+# import libraries
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+
+
+
+```
+
+
+```{r data import}
+
+# import data
+# Read CSV file
+data <- read_csv("SP25_602_omnibus_V1_May8.csv")
+
+# Preview first few rows
+glimpse(data)       # View the dataset structure (variables, types, and first few values)
+dim(data)           # View numbers of rows (number of unique respondents) and columns (number of questions)
+names(data)         # Print the names of all variables
+head(data)
+
+
+
+
+
+```
+
+
+```{r data cleaning}
+# Create a new column to categorize into LowRisk / HighRisk based on Group13_AITrust_DO
+data <- data %>%
+  mutate(G13_RiskGroup = case_when(
+    str_detect(Group13_AITrust_DO, "HighRisk_1") ~ "HighRisk_1",
+    str_detect(Group13_AITrust_DO, "HighRisk_2") ~ "HighRisk_2",
+    str_detect(Group13_AITrust_DO, "HighRisk_3") ~ "HighRisk_3",
+    str_detect(Group13_AITrust_DO, "LowRisk_SongColl") ~ "LowRisk_SongColl",
+    str_detect(Group13_AITrust_DO, "LowRisk_Collab") ~ "LowRisk_Collab",
+    str_detect(Group13_AITrust_DO, "LowRisk_BlogWrit") ~ "LowRisk_BlogWrit",
+    TRUE ~ "Unknown"
+  ))
+
+# Map G13_DV to Likert scale (1–5) dependence variable
+data <- data %>%
+  mutate(G13_DV_Likert = case_when(
+    G13_DV == "Human alone" ~ 1,
+    G13_DV == "Human assisted by AI" ~ 2,
+    G13_DV == "Collaboration between AI and Human (50-50)" ~ 3,
+    G13_DV == "AI assisted with Human" ~ 4,
+    G13_DV == "AI alone" ~ 5,
+    TRUE ~ NA_real_
+  ))
+
+
+# Count how many observations in each category
+data %>%
+  count(G13_RiskGroup)
+
+# Filter out Unknowns and select relevant columns
+G13_sorted <- data %>%
+  filter(G13_RiskGroup != "Unknown") %>%
+  arrange(G13_RiskGroup) %>%
+  select(G13_RiskGroup, Group13_AITrust_DO, G13_DV, G13_DV_Likert)
+
+# View the result
+print(G13_sorted)
+
+
+
+```
+
+
+
+```{r Hypothesis Testing}
+
+# List of LowRisk subgroups to compare with HighRisk_1
+low_risk_groups <- c("LowRisk_SongColl", "LowRisk_Collab", "LowRisk_BlogWrit")
+
+# Loop through each LowRisk group
+for (low_group in low_risk_groups) {
+  cat("\n--- Comparing HighRisk_1 vs", low_group, "---\n")
+  
+  # Subset data
+  subset_data <- data %>%
+    filter(G13_RiskGroup %in% c("HighRisk_1", low_group))
+  
+  # Get DV values by group
+  high_values <- subset_data %>%
+    filter(G13_RiskGroup == "HighRisk_1") %>%
+    pull(G13_DV_Likert)
+  
+  low_values <- subset_data %>%
+    filter(G13_RiskGroup == low_group) %>%
+    pull(G13_DV_Likert)
+  
+  # Run F-test for variance
+  ftest <- var.test(high_values, low_values)
+  print(ftest)
+  
+  # Use result to choose var.equal setting
+  equal_var <- ftest$p.value > 0.05
+  
+  # Run t-test
+  ttest <- t.test(high_values, low_values, var.equal = equal_var)
+  print(ttest)
+}
+
+
+# List of LowRisk subgroups to compare with HighRisk_2
+low_risk_groups <- c("LowRisk_SongColl", "LowRisk_Collab", "LowRisk_BlogWrit")
+
+# Loop through each LowRisk group
+for (low_group in low_risk_groups) {
+  cat("\n--- Comparing HighRisk_2 vs", low_group, "---\n")
+  
+  # Subset data
+  subset_data <- data %>%
+    filter(G13_RiskGroup %in% c("HighRisk_2", low_group))
+  
+  # Get DV values by group
+  high_values <- subset_data %>%
+    filter(G13_RiskGroup == "HighRisk_2") %>%
+    pull(G13_DV_Likert)
+  
+  low_values <- subset_data %>%
+    filter(G13_RiskGroup == low_group) %>%
+    pull(G13_DV_Likert)
+  
+  # Run F-test for variance
+  ftest <- var.test(high_values, low_values)
+  print(ftest)
+  
+  # Use result to choose var.equal setting
+  equal_var <- ftest$p.value > 0.05
+  
+  # Run t-test
+  ttest <- t.test(high_values, low_values, var.equal = equal_var)
+  print(ttest)
+}
+
+
+# List of LowRisk subgroups to compare with HighRisk_3
+low_risk_groups <- c("LowRisk_SongColl", "LowRisk_Collab", "LowRisk_BlogWrit")
+
+# Loop through each LowRisk group
+for (low_group in low_risk_groups) {
+  cat("\n--- Comparing HighRisk_3 vs", low_group, "---\n")
+  
+  # Subset data
+  subset_data <- data %>%
+    filter(G13_RiskGroup %in% c("HighRisk_3", low_group))
+  
+  # Get DV values by group
+  high_values <- subset_data %>%
+    filter(G13_RiskGroup == "HighRisk_3") %>%
+    pull(G13_DV_Likert)
+  
+  low_values <- subset_data %>%
+    filter(G13_RiskGroup == low_group) %>%
+    pull(G13_DV_Likert)
+  
+  # Run F-test for variance
+  ftest <- var.test(high_values, low_values)
+  print(ftest)
+  
+  # Use result to choose var.equal setting
+  equal_var <- ftest$p.value > 0.05
+  
+  # Run t-test
+  ttest <- t.test(high_values, low_values, var.equal = equal_var)
+  print(ttest)
+  #summary(ttest)
+}
+
+
+
+```
+
+
+
+# Results
+### HighRisk\_1 Comparisons:
+
+* **vs. LowRisk\_SongColl**: *t*(69) = -2.58, *p* = 0.011. Means: HighRisk\_1 = 2.02, LowRisk\_SongColl = 2.56. Equal variances assumed (*p* = 0.54).
+* **vs. LowRisk\_Collab**: *t*(66) = -0.20, *p* = 0.84. Means: HighRisk\_1 = 2.02, LowRisk\_Collab = 2.07. Equal variances assumed (*p* = 0.052).
+* **vs. LowRisk\_BlogWrit**: *t*(67) = -1.04, *p* = 0.30. Means: HighRisk\_1 = 2.02, LowRisk\_BlogWrit = 1.80. Equal variances assumed (*p* = 0.35).
+
+### HighRisk\_2 Comparisons:
+
+* **vs. LowRisk\_SongColl**: *t*(70) = -1.89, *p* = 0.064. Means: HighRisk\_2 = 2.14, LowRisk\_SongColl = 2.56. Equal variances assumed (*p* = 0.79).
+* **vs. LowRisk\_Collab**: *t*(67) = -1.14, *p* = 0.26. Means: HighRisk\_2 = 2.14, LowRisk\_Collab = 2.07. Equal variances assumed (*p* = 0.66).
+* **vs. LowRisk\_BlogWrit**: *t*(69) = -0.43, *p* = 0.67. Means: HighRisk\_2 = 2.14, LowRisk\_BlogWrit = 2.06. Equal variances assumed (*p* = 0.91).
+
+### HighRisk\_3 Comparisons:
+
+* **vs. LowRisk\_SongColl**: *t*(70) = -2.47, *p* = 0.015. Means: HighRisk\_3 = 2.00, LowRisk\_SongColl = 2.56. Equal variances assumed (*p* = 0.42).
+* **vs. LowRisk\_Collab**: *t*(67) = -0.47, *p* = 0.64. Means: HighRisk\_3 = 2.00, LowRisk\_Collab = 2.07. Equal variances assumed (*p* = 0.56).
+* **vs. LowRisk\_BlogWrit**: *t*(69) = -1.10, *p* = 0.28. Means: HighRisk\_3 = 2.00, LowRisk\_BlogWrit = 2.26. Equal variances assumed (*p* = 0.79).
+
+
+```{r result}
+
+# Assuming your dataset is named `df` and already prepped
+df_summary <- data %>%
+  group_by(G13_RiskGroup) %>%
+  summarise(
+    mean_trust = mean(G13_DV_Likert, na.rm = TRUE),
+    sd = sd(G13_DV_Likert, na.rm = TRUE),
+    n = n(),
+    se = sd / sqrt(n),
+    ci_low = mean_trust - 1.96 * se,
+    ci_high = mean_trust + 1.96 * se
+  )
+
+ggplot(df_summary, aes(x = G13_RiskGroup, y = mean_trust)) +
+  geom_point(size = 3, color = "steelblue") +
+  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), width = 0.2) +
+  labs(
+    title = "Mean Trust in AI-Human Decision-Making by Risk Group",
+    x = "Condition",
+    y = "Mean Trust Score (1–5 Likert Scale)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+# Findings
+These results reveal the following patterns:
+
+1. **LowRisk\_SongColl vs. HighRisk Conditions**:
+
+   * Participants in the **LowRisk\_SongColl** group consistently reported **higher risk perceptions** compared to **HighRisk\_1** (*p* = 0.011) and **HighRisk\_3** (*p* = 0.015).
+   * The difference with **HighRisk\_2** was marginally significant (*p* = 0.064), suggesting a possible trend.
+
+2. **LowRisk\_Collab and LowRisk\_BlogWrit vs. HighRisk Conditions**:
+
+   * No significant differences were observed in risk perception scores when comparing any HighRisk condition to **LowRisk\_Collab** or **LowRisk\_BlogWrit**.
+
+3. **Implications**:
+
+   * The **song collaboration activity**, despite being labeled “low risk,” elicited a **stronger perception of risk** than actual high-risk decision-making scenarios in two of three comparisons.
+   * This unexpected outcome suggests that the **format and framing** of AI interaction (e.g., creative collaboration like songwriting) may influence risk perception more than the actual content or decision context.
+
+# Discussion
+### **Implications of the Study**
+
+This study provides valuable insights into how different activities, presented as high-risk or low-risk, are perceived by participants. The findings suggest that the **format of the task** (such as collaborative activities like songwriting) can have a stronger influence on risk perception than the inherent risk of the activity itself. This is an important observation for understanding how context and framing can shape individuals' attitudes and decisions, especially in environments involving AI, decision-making, or even public policy.
+
+* **Perception of AI in Collaborative Settings**: The stronger risk perception found in the **LowRisk\_SongColl** group (even compared to high-risk conditions) suggests that collaborative, creative tasks may be associated with unpredictability or a sense of loss of control, potentially leading to a heightened sense of risk. This could have broader implications for AI applications in creative fields, where users may overestimate the risks associated with using AI in activities traditionally seen as highly personal or creative.
+
+* **Risk Framing**: The **LowRisk\_SongColl** activity may have been perceived as involving greater unpredictability, despite being categorized as "low-risk." It is possible that the creative nature of the task led participants to feel that AI could interfere with or alter their creative expression in unforeseen ways. This finding could challenge traditional thinking about risk in high-stakes decision-making scenarios (like medical or legal contexts), where participants might perceive AI as less risky because the outcomes are more clearly defined.
+
+### **Possible Explanations for Unexpected Results**
+
+The study's hypothesis posited that **low-risk activities** (such as creative collaborations) would lead to lower perceived risk compared to high-risk decision-making activities. However, several possible explanations could account for why participants perceived **LowRisk\_SongColl** to be more risky than high-risk scenarios:
+
+1. **Framing Effect**: Participants may have been more sensitive to the potential **loss of control** in a collaborative setting. When working with AI in creative tasks like songwriting, participants may have feared that the AI would overtake the process, leading to unintended or unsatisfactory outcomes. This contrasts with high-risk activities, where the stakes may be more understood or expected.
+
+2. **Lack of Familiarity with AI**: The participants' unfamiliarity with AI-driven collaborative tasks, like songwriting, may have led them to overestimate the potential risks or consequences. When engaging in novel AI interactions, participants often default to caution, fearing that the AI could make decisions that diverge from their intent.
+
+3. **Task Ambiguity**: The **low-risk activities** (especially the collaborative songwriting task) may have been seen as more ambiguous in terms of risk. While the high-risk conditions might have been easier to categorize, the perceived vagueness of a creative task may have led to a more significant focus on potential risks.
+
+4. **Individual Differences**: The study did not account for differences in participants' prior experiences with technology or their levels of comfort in using AI. Those with limited exposure to creative AI tools could have perceived greater risks, whereas those more familiar with AI may have been less apprehensive.
+
+

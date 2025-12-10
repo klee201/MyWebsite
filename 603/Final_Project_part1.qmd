@@ -1,0 +1,659 @@
+---
+title: "603_Final_Project"
+author: "Kuan-Cheng Lee"
+description: "The question five is in the r model section"
+format: 
+  html: 
+    embed-resources: true
+    self-contained-math: true
+---
+
+```{r library}
+# Load necessary libraries
+#install.packages("stargazer")  # if not already installed
+library(stargazer)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(nnet)
+library(corrplot)
+library(tm)
+library(wordcloud)
+library(corrplot)
+library(ggplot2)
+library(dplyr)
+library(gganimate)
+
+
+```
+
+## Introduction
+
+As generative AI tools like ChatGPT become increasingly integrated into higher education, understanding how students perceive and engage with these technologies has become a critical area of inquiry. This study aims to explore two key questions: first, whether students who use generative AI more frequently tend to trust AI-generated content more; and second, whether students from different academic fields vary in their ethical concerns about the use of generative AI. To examine these questions, survey data were collected from university students, focusing on their frequency of AI use, trust levels, and ethical attitudes. The analysis included hypothesis testing and regression modeling to assess the relationships between these variables and provide insight into students’ perspectives on this rapidly evolving technology.
+
+## Research Question
+
+"How are university students’ self-reported knowledge and ethical concerns about generative AI influenced by their frequency of AI use and their academic field of study?"
+
+```{r data}
+# Read the dataset
+data <- read.csv("AI_Chatbots_Students_Attitude_Dataset_EN.csv", sep = ",", stringsAsFactors = FALSE)
+
+```
+
+------------------------------------------------------------------------
+
+## Description
+
+This project investigates university students’ perceptions, usage, and trust in generative AI tools (like ChatGPT), focusing on how demographic factors, usage frequency, and ethical concerns relate to trust and future intentions.
+
+## Hypothesis
+
+### **Hypothesis 1 (Frequency Knowledge Influence Using AI)**
+
+**H₀ (Null Hypothesis):** There is no relationship between students' frequency of generative AI use and their self-reported knowledge of AI.\
+**H₁ (Alternative Hypothesis):** Students who use generative AI more frequently report higher levels of knowledge about AI.
+
+------------------------------------------------------------------------
+
+### **Hypothesis 2 (Ethics and Field of Study)**
+
+**H₀ (Null Hypothesis):** Students from different academic fields do not differ in their ethical concerns about using generative AI.\
+**H₁ (Alternative Hypothesis):** Students from different academic fields have significantly different ethical concerns about using generative AI.
+
+------------------------------------------------------------------------
+
+## Descriptive Statistics
+
+This dataset contains survey responses from university students regarding their usage patterns, perceptions, and attitudes toward generative AI technologies like ChatGPT in educational settings. The data frame consists of 184 rows (participants) and multiple columns representing different survey questions.
+
+### Selected Variables:
+
+-   **Q1**: Academic level.
+-   **Q2**: Field of study.
+-   **Q3**: Gender identity.
+-   **Q4**: Frequency of generative AI use.
+-   **Q5.1 – Q5.6**: Perceived benefits of using AI in learning.
+-   **Q6.1 – Q6.8**: Concerns or perceived risks.
+-   **Q7.1 – Q7.4**: Trust in AI-generated information.
+-   **Q8.1 – Q8.5**: Benefit on academic performance or habits.
+-   **Q9.1 – Q9.5**: Ethical to use AI in future educational tasks.
+
+Factorizing the Dataset Some variables in the dataset are categorical by nature but may initially be read as character strings or numeric values. To enable appropriate analysis and visualization, these columns were converted into factors with meaningful levels. This step helps in treating variables like gender, academic level, and frequency of AI use as categorical variables rather than continuous or plain text.
+
+Q1 (Academic Level): Converted into a binary value with levels between Undergraduate and Graduate.
+
+Q2 (Field of Study): Converted into a factor with levels like Marketing, Finance, Accounting, etc.
+
+Q3 (Gender): Treated as a binary value from male and female into 0 and 1.
+
+Likert-Scale Responses (Q4) (Frequency of Generative AI Use): There are five different frequency from Never to Very Often. In this case, we use Likert-Scale to make the data can present correctly.
+
+Likert-Scale Responses (Q5 to Q9): These responses are ordinal in nature, typically ranging from 1 to 5 (e.g., Strongly Disagree to Strongly Agree). These were converted into ordered factors to reflect their ordinal scale for better statistical interpretation.
+
+This factorization ensures accurate summarization, plotting, and modeling in further stages of analysis.
+
+```{R Factorizing your dataset}
+# Convert categorical variables to factors
+#Factorizing categorical columns
+data$Q1 <- factor(data$Q1,
+                  levels = c('Bachelor', 'Master'),
+                  ordered = TRUE)
+Q1_likert_scale <- c("Bachelor" = 0, "Master" = 1)
+#Q1_likert_scale <- c("Bachelor" = 0, "Master" = 1)
+
+
+#data$Q2 <- relevel(data$Q2, ref = "Finance")
+data$Q2 <- factor(data$Q2,
+                  levels = c("Marketing", "Finance", "Accounting", "International Economic Relations", "Economics and Business", "Economics"),
+                  ordered = FALSE)
+data$Q2 <- relevel(data$Q2, ref = "Finance")
+
+data$Q3 <- factor(data$Q3,
+                  levels = c("Male", "Female"),
+                  ordered = TRUE)
+
+Q3_likert_scale <- c("Male" = 0, "Female" = 1)
+
+
+#data$Q3 <- factor(data$Q3, levels = c("Male", "Female"))                   # Gender
+
+# Step 1: Ensure Q4 is an ordered factor
+data$Q4 <- factor(data$Q4,
+                  levels = c("Never", "Rarely", "Sometimes", "Often", "Very often"),
+                  ordered = TRUE)
+
+
+data$Q4 <- factor(data$Q4,
+                  levels = c("Never", "Rarely", "Sometimes", "Often", "Very often"),
+                  ordered = TRUE)
+
+Q4_likert_scale <- c("Never"=1, "Rarely"=2, "Sometimes"=3, "Often"=4, "Very often"=5)
+
+
+
+# Convert Likert items (Q5.*, Q6.*, Q7.*, Q8.*, Q9.*) to ordered factors
+likert_levels <- c("Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree")
+
+for (col in grep("^Q[5-9]\\.", names(data), value = TRUE)) {
+  data[[col]] <- ordered(data[[col]], levels = likert_levels)
+}
+
+
+
+
+
+# Define Likert scale
+likert_scale <- c("Strongly Disagree"=1, "Disagree"=2, "Neutral"=3, "Agree"=4, "Strongly Agree"=5)
+
+# Optional: Check structure
+str(data)
+
+
+
+```
+
+```{r data cleaning}
+# --------------------------------------
+# 1. Demographics
+# --------------------------------------
+# Q1: Level of education
+cat("Education Levels:\n")
+print(table(data$Q1))
+data$Q1_likert <- Q1_likert_scale[as.character(data$Q1)]
+#print(prop.table(table(data$Q1)))
+#par(mfrow=c(1,1))  # Reset for the each bar chart
+
+# Q2: Field of study
+cat("\nField of Study:\n")
+print(table(data$Q2))
+#par(mfrow=c(1,1))  # Reset for the each bar chart
+
+# Gender Distribution (Q3)
+cat("\nGender Distribution:\n")
+print(table(data$Q3))  # Frequency of each gender
+data$Q3_likert <- Q3_likert_scale[as.character(data$Q3)]
+#barplot(table(data$Q3), main = "Gender Distribution", col = "lightgreen")
+#par(mfrow=c(1,1))  # Reset for the each bar chart
+
+names(data)
+
+
+```
+
+### General Visualizations
+
+```{r General Visualizations}
+
+
+# Create a new numeric variable using the mapping
+data$Q4_likert <- Q4_likert_scale[as.character(data$Q4)]
+hist(data$Q4_likert,
+     breaks = 5,
+     col = "lightgreen",
+     main = "Distribution of AI Use Likert Scores",
+     xlab = "Likert Scale (1 = Never, 5 = Very often)",
+     ylab = "Count")
+
+
+# --------------------------------------
+# 3. Trust in AI - Q5.1 to Q5.6
+# --------------------------------------
+
+# Frequency of AI Use (Q5)
+knowledge_items <- grep("^Q5\\.", names(data), value = TRUE)
+
+# Generate the graph for each sub questions
+par(mfrow=c(3,2))  # two rows and three columns
+
+labels <- c(
+  "Q5.1" = "Q5.1 Complexity Limitations",
+  "Q5.2" = "Q5.2 Factual Inacurracy",
+  "Q5.3" = "Q5.3 Context Issues",
+  "Q5.4" = "Q5.4 Bias/Unfairness",
+  "Q5.5" = "Q5.5 Statistical Limits",
+  "Q5.6" = "Q5.6 Lack of Empathy"
+)
+
+
+for (item in knowledge_items) {
+  
+  barplot(table(data[[item]]),
+          main = labels[item],
+          col = "lightblue",
+          ylab = "Count",
+          las = 2)
+  
+}
+par(mfrow=c(1,1))  # Reset for the each bar chart
+
+
+# --------------------------------------
+# 5. Ethical Concerns - Q7.* and Q9.*
+# --------------------------------------
+#
+ethics_items <- grep("^Q7\\.|^Q9\\.", names(data), value = TRUE)
+
+likert_scale <- c("Strongly Disagree"=1, "Disagree"=2, "Neutral"=3, "Agree"=4, "Strongly Agree"=5)
+
+data_numeric <- data %>%
+  mutate(across(all_of(ethics_items), ~ likert_scale[.])) %>%
+  mutate(ethics_index = rowMeans(select(., all_of(ethics_items)), na.rm = TRUE))
+
+cat("Summary of Ethical Concern Items:\n")
+print(summary(data_numeric[ethics_items]))
+
+cat("\nEthics Index Summary:\n")
+print(summary(data_numeric$ethics_index))
+
+
+
+par(mfrow = c(3, 3))  # layout for multiple plots
+
+
+labels <- c(
+  "Q7.1" = "Q7.1 Undermines Education",
+  "Q7.2" = "Q7.2 Limits Socialization",
+  "Q7.3" = "Q7.3 Hinders Skill Development",
+  "Q7.4" = "Q7.4 Over-Reliance",
+  "Q9.1" = "Q9.1 Accuracy and Transparency",
+  "Q9.2" = "Q9.2 Privacy and ethical issues",
+  "Q9.3" = "Q9.3 Holistic Competencies",
+  "Q9.4" = "Q9.4 Career Prospects",
+  "Q9.5" = "Q9.5 Human Values"
+)
+
+for (item in ethics_items) {
+  
+  barplot(table(data[[item]]),
+          main = labels[item],
+          col = "pink",
+          las = 2)
+}
+
+par(mfrow = c(1, 1))  # reset layout
+
+
+
+# --------------------------------------
+# 6. Ethical Concerns - Q8.1 to Q8.5
+# --------------------------------------
+#
+
+
+benefit_items <- grep("^Q8\\.", names(data), value = TRUE)
+
+likert_scale <- c("Strongly Disagree"=1, "Disagree"=2, "Neutral"=3, "Agree"=4, "Strongly Agree"=5)
+
+data_numeric <- data %>%
+  mutate(across(all_of(benefit_items), ~ likert_scale[.])) %>%
+  mutate(benefit_index = rowMeans(select(., all_of(benefit_items)), na.rm = TRUE))
+
+cat("Summary of Ethical Concern Items:\n")
+print(summary(data_numeric[benefit_items]))
+
+cat("\nEthics Index Summary:\n")
+print(summary(data_numeric$benefit_index))
+
+
+
+par(mfrow = c(3, 2))  # layout for multiple plots
+
+
+labels <- c(
+  "Q8.1" = "Q8.1 Learning Support",
+  "Q8.2" = "Q8.2 Writing Support",
+  "Q8.3" = "Q8.3 Research Support",
+  "Q8.4" = "Q8.4 Media Support",
+  "Q8.5" = "Q8.5 Administrative Support"
+)
+
+for (item in benefit_items) {
+  
+  barplot(table(data[[item]]),
+          main = labels[item],
+          col = "pink",
+          las = 2)
+}
+
+par(mfrow = c(1, 1))  # reset layout
+
+```
+
+## Hypothesis Testing
+
+### Model Comparisons
+
+The analysis included four linear regression models to test the study’s hypotheses.
+
+-   **Model 1** examined the relationship between students’ frequency of generative AI use (`Q4`) and their self-reported AI knowledge (`Q5`).
+
+-   **Model 2** assessed whether students from different academic fields (`Q2`) differ in their ethical concerns about generative AI (`Q7+Q9`).
+
+-   **Model 3** extended Model 1 by adding control variables such as academic level (`Q1`), gender (`Q3`), and trust in AI (`Q8`).
+
+-   **Model 4** extended Model 2 by including additional control variables: academic level (`Q1`), gender (`Q3`), and trust in AI (`Q8`).
+
+The resulting p-values for each model were as follows:
+
+-   **Model 1:** 0.7718
+
+-   **Model 2:** 0.1848
+
+-   **Model 3:** 0.8886
+
+-   **Model 4:** 0.0295
+
+These values indicate that only Model 4 showed a statistically significant relationship, suggesting that academic field and background characteristics influence students’ ethical concerns about AI.
+
+```{r model}
+
+model_data <- data %>%
+  # Recode Likert items
+  mutate(across(c(starts_with("Q5."), starts_with("Q7."), starts_with("Q8."), starts_with("Q9.")), ~ likert_scale[.])) %>%
+  
+  # Create indices
+  mutate(
+    knowledge_index = rowMeans(select(., starts_with("Q5.")), na.rm = TRUE),
+    ethics_index = rowMeans(select(., matches("^Q7\\.|^Q9\\.")), na.rm = TRUE),
+    benefit_index = rowMeans(select(., starts_with("Q8.")), na.rm = TRUE),
+    Q1_likert_index = rowMeans(select(., starts_with("Q1.")), na.rm = TRUE),
+    Q3_likert_index = rowMeans(select(., starts_with("Q3.")), na.rm = TRUE),
+    Q4_likert_index = rowMeans(select(., starts_with("Q4.")), na.rm = TRUE)
+  ) %>%
+  
+  # Select modeling variables
+  select(knowledge_index, ethics_index, benefit_index, Q1_likert, Q2, Q3_likert, Q4_likert) %>%
+  na.omit()
+#data$Q2 <- relevel(data$Q2, ref = "Finance")
+
+# Histogram for knowledge_index2
+ggplot(model_data, aes(x = knowledge_index)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "white") +
+  labs(title = "Distribution of AI Knowledge Index",
+       x = "The Mean of the Question in Knowledge Index",
+       y = "Frequency") +
+  theme_minimal()
+
+# Histogram for ethics_index2
+ggplot(model_data, aes(x = ethics_index)) +
+  geom_histogram(binwidth = 0.5, fill = "darkgreen", color = "white") +
+  labs(title = "Distribution of AI Ethical Concern Index",
+       x = "The Mean of the Question in Ethics Index",
+       y = "Frequency") +
+  theme_minimal()
+
+
+
+
+# 2. Fit models using the same dataset
+model1 <- lm(knowledge_index ~ Q4_likert, data = model_data) 
+model2 <- lm(ethics_index ~ Q2, data = model_data) 
+model3 <- lm(knowledge_index ~ Q4_likert + Q1_likert + Q3_likert + benefit_index, data = model_data)
+model4 <- lm(ethics_index ~ Q2 + Q1_likert + Q3_likert + benefit_index, data = model_data)
+
+
+
+summary(model1)
+summary(model2)
+summary(model3)
+summary(model4)
+
+# --------------------------------------
+# Question 5: Standardized Regression
+# --------------------------------------
+
+# Standardize continuous variables only
+model_data$Z_Q1  <- scale(model_data$Q1_likert)
+model_data$Z_Q3  <- scale(model_data$Q3_likert)
+model_data$Z_Q4  <- scale(model_data$Q4_likert)
+model_data$Z_benefit <- scale(model_data$benefit_index)
+
+# Standardize dependent variable
+model_data$Z_ethics <- scale(model_data$ethics_index)
+
+# Run standardized Model 4
+model4_std <- lm(Z_ethics ~ Q2 + Z_Q1 + Z_Q3 + Z_Q4 + Z_benefit, data = model_data)
+
+summary(model4_std)
+
+stargazer(model4_std,
+          title = "Standardized Model 4 Results",
+          type = "html",
+          out = "standardized_model4_results.html")
+
+
+ls()  # should include model_data
+str(model_data)  # check its structure
+
+# Fit the model for ethics_index vs benefit_index
+model <- lm(ethics_index ~ benefit_index, data = model_data)
+summary(model)
+
+# Create a sequence of hypothetical benefit_index values
+new_data <- data.frame(
+  benefit_index = seq(
+    min(model_data$benefit_index, na.rm = TRUE),
+    max(model_data$benefit_index, na.rm = TRUE),
+    length.out = 100
+  )
+)
+
+# Predict ethics_index with 95% prediction interval
+pred <- predict(model, newdata = new_data, interval = "prediction", level = 0.95)
+
+# Add predictions to new_data
+hop_data <- new_data %>%
+  mutate(
+    predicted = pred[, "fit"],
+    lower = pred[, "lwr"],
+    upper = pred[, "upr"]
+  )
+
+# Simulate hypothetical outcomes
+set.seed(1234)
+n_sim <- 100
+simulated <- hop_data %>%
+  rowwise() %>%
+  do(data.frame(
+    benefit_index = .$benefit_index,
+    outcome = rnorm(n_sim, mean = .$predicted, sd = (.$upper - .$predicted)/2),
+    sim_id = 1:n_sim
+  ))
+
+# Animated HOP
+g <- ggplot() +
+  geom_line(data = hop_data, aes(x = benefit_index, y = predicted), linewidth = 1) +
+  geom_ribbon(data = hop_data, aes(x = benefit_index, ymin = lower, ymax = upper), alpha = 0.2) +
+  geom_point(data = simulated, aes(x = benefit_index, y = outcome), size = 1, alpha = 0.5) +
+  labs(
+    title = "Hypothetical Outcome Plot (HOP): Effect of Perceived Academic Benefit on Ethical Concerns",
+    subtitle = "Simulation {closest_state} of 100",
+    x = "Perceived Academic Benefit (benefit_index)",
+    y = "Ethical Concerns (ethics_index)"
+  ) +
+  theme_minimal() +
+  transition_states(sim_id, state_length = 1)
+
+animate(g, nframes = 100, fps = 10)
+
+
+
+
+
+
+
+```
+
+### Diagnostics(AIC n BIC make sure there are the same observations before run the function)
+
+```{r Graph}
+#The table will be presented in regression_results.html
+stargazer(model1, model2, model3, model4, title="Results",
+          type = "html",
+          out = "regression_results.html")
+
+
+
+
+
+# Compare with AIC
+AIC(model1, model2, model3, model4)
+BIC(model1, model2, model3, model4)
+
+summary(model1)$adj.r.squared
+summary(model2)$adj.r.squared
+summary(model3)$adj.r.squared
+summary(model4)$adj.r.squared
+
+# Model 1
+par(mfrow = c(2, 2))
+plot(model1)
+par(mfrow = c(1, 1))  # Reset
+
+# Repeat for others:
+
+par(mfrow = c(2, 2))
+plot(model2)
+par(mfrow = c(1, 1))  # Reset
+
+
+
+par(mfrow = c(2, 2))
+plot(model3)
+par(mfrow = c(1, 1))  # Reset
+
+
+par(mfrow = c(2, 2))
+plot(model4)
+par(mfrow = c(1, 1))  # Reset
+
+
+
+
+
+
+```
+
+## Conclution
+
+This study examined the relationship between students' generative AI usage and their knowledge and ethical perceptions through four regression models. **Model 1**, testing the hypothesis that frequent AI use is associated with greater AI knowledge, produced a p-value of 0.1244, indicating **no statistically significant relationship** at the 0.05 level. **Model 2**, assessing differences in ethical concerns across academic fields, also yielded a non-significant p-value (0.1848). When control variables such as academic level, gender, and trust were added in **Model 3**, the p-value increased to 0.3011, further supporting the null hypothesis for Hypothesis 1. However, **Model 4**, which included controls while testing Hypothesis 2, returned a **statistically significant p-value of 0.0295**, suggesting that field of study, along with other factors, **does significantly relate to students’ ethical concerns** about AI. Overall, while no evidence was found to support the idea that frequent AI use improves AI knowledge, the results point to meaningful variation in ethical attitudes depending on students’ academic backgrounds.
+
+```{r question 5}
+# --------------------------------------
+# Question 5: Standardized Regression
+# --------------------------------------
+
+# Standardize continuous variables only
+#model_data$Z_Q1  <- scale(model_data$Q1_likert)
+##model_data$Z_Q3  <- scale(model_data$Q3_likert)
+##model_data$Z_Q4  <- scale(model_data$Q4_likert)
+#model_data$Z_benefit <- scale(model_data$benefit_index)
+
+# Standardize dependent variable
+#model_data$Z_ethics <- scale(model_data$ethics_index)
+
+# Run standardized Model 4
+#model4_std <- lm(Z_ethics ~ Q2 + Z_Q1 + Z_Q3 + Z_Q4 + Z_benefit, data = #model_data)
+
+#summary(model4_std)
+
+#stargazer(model4_std,
+#          title = "Standardized Model 4 Results",
+#          type = "html",
+#          out = "standardized_model4_results.html")#
+
+
+
+# --------------------------------------
+# Question 5 (Option 2): Hypothetical Outcome Plot (HOP)
+# --------------------------------------
+
+# Use Model 4 (your only significant model)
+#set.seed(123)
+
+# Create predicted values from the model
+#model4_pred <- model4
+
+# Create a dataframe with predictions + random noise
+#hop_data <- model_data %>%
+#  mutate(
+#    predicted = predict(model4_pred),
+    # residual standard deviation from model
+#    sigma = summary(model4_pred)$sigma,
+    # simulated outcomes (prediction + random error)
+#    simulated_outcome = predicted + rnorm(n(), mean = 0, sd = sigma)
+#  )
+
+# Plot the Hypothetical Outcome Plot
+#ggplot(hop_data, aes(x = benefit_index, y = simulated_outcome)) +
+#  geom_point(alpha = 0.2) +
+#  geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) +
+#  labs(title = "Hypothetical Outcome Plot (HOP)",
+#       subtitle = "Simulated outcomes based on Model 4 uncertainty",
+#       x = "Benefit Index",
+#       y = "Simulated Ethics Index") +
+#  theme_minimal()
+
+
+
+# 1. Fit your model (example uses ethics_index)
+#model <- lm(ethics_index ~ benefit_index, data = model_data)
+
+# 2. Create a sequence of hypothetical benefit_index values
+##new_data <- data.frame(
+#  benefit_index = seq(
+#    min(model_data$benefit_index, na.rm = TRUE),
+#    max(model_data$benefit_index, na.rm = TRUE),
+#    length.out = 100
+#  )
+#)
+
+# 3. Predict ethics_index with uncertainty
+#pred <- predict(model, newdata = new_data, interval = "prediction", level = #0.95)
+
+# Add predictions to new_data
+##hop_data <- new_data %>%
+#  mutate(
+#    predicted = pred[, "fit"],
+#    lower = pred[, "lwr"],
+#    upper = pred[, "upr"]
+#  )
+
+# 4. Simulate hypothetical outcomes
+#set.seed(1234)
+#n_sim <- 100
+#simulated <- hop_data %>%
+#  rowwise() %>%
+#  do(data.frame(
+#    benefit_index = .$benefit_index,
+#    outcome = rnorm(n_sim, mean = .$predicted, sd = (.$upper - #.$predicted)/2),
+#    sim_id = 1:n_sim
+#  ))
+
+# 5. Animated HOP
+##g <- ggplot() +
+#  geom_line(data = hop_data, aes(x = benefit_index, y = predicted), linewidth #= 1) +
+#  geom_ribbon(data = hop_data, aes(x = benefit_index, ymin = lower, ymax = #upper), alpha = 0.2) +
+#  geom_point(data = simulated, aes(x = benefit_index, y = outcome), size = 1, #alpha = 0.5) +
+#  labs(
+#    title = "Hypothetical Outcome Plot (HOP): Effect of Perceived Academic #Benefit on Ethical Concerns",
+#    subtitle = "Simulation {closest_state} of 100",
+#    x = "Perceived Academic Benefit (benefit_index)",
+#    y = "Ethical Concerns (ethics_index)"
+#  ) +
+#  theme_minimal() +
+#  transition_states(sim_id, state_length = 1)#
+
+#animate(g, nframes = 100, fps = 10)
+
+
+```
+
+## Reference and Data
+
+Chatbots' Impact on University Learning https://www.kaggle.com/datasets/jocelyndumlao/chatbots-impact-on-university-learning?resource=download
