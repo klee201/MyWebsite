@@ -1,5 +1,5 @@
 ---
-title: "Projects"
+title: "Project"
 ---
 
 ## 758 Final Project
@@ -14,8 +14,3 @@ aaaa
 
 -   [**View Full Analysis & Report (HTML)**](docs/604/604_Final_check-in_2.html)
 
-## Project 3
-
-## Project 4
-
-## Project 5

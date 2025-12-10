@@ -128,9 +128,9 @@
   {
     "objectID": "projects.html",
     "href": "projects.html",
-    "title": "Projects",
+    "title": "Project",
     "section": "",
-    "text": "View Full Analysis & Report (HTML)"
+    "text": "The raw dataset of approximately 8,000 YouTube comments, initially spread across six files, underwent a systematic cleaning process to prepare it for textual analysis. We first streamlined the data by retaining only the comment text, like counts, and reply status. Utilizing the stringr package, we normalized all whitespace and implemented crucial character filtering, deliberately preserving the full integrity of all Chinese characters to maintain cultural and contextual authenticity. The final output ensured a tidy, standardized dataset, encoded in UTF-8, making it immediately ready for downstream procedures like tokenization and sentiment analysis.\n\nView Full Analysis & Report (HTML)"
   },
   {
     "objectID": "projects.html#final-project-check-in-2",
@@ -268,9 +268,9 @@
   {
     "objectID": "projects.html#final-project",
     "href": "projects.html#final-project",
-    "title": "Projects",
+    "title": "Project",
     "section": "",
-    "text": "View Full Analysis & Report (HTML)"
+    "text": "The raw dataset of approximately 8,000 YouTube comments, initially spread across six files, underwent a systematic cleaning process to prepare it for textual analysis. We first streamlined the data by retaining only the comment text, like counts, and reply status. Utilizing the stringr package, we normalized all whitespace and implemented crucial character filtering, deliberately preserving the full integrity of all Chinese characters to maintain cultural and contextual authenticity. The final output ensured a tidy, standardized dataset, encoded in UTF-8, making it immediately ready for downstream procedures like tokenization and sentiment analysis.\n\nView Full Analysis & Report (HTML)"
   },
   {
     "objectID": "projects.html#project-5",
@@ -492,8 +492,8 @@
   {
     "objectID": "projects.html#final-project-1",
     "href": "projects.html#final-project-1",
-    "title": "Projects",
+    "title": "Project",
     "section": "604 Final Project",
-    "text": "604 Final Project\n\nView Full Analysis & Report (HTML)"
+    "text": "604 Final Project\naaaa\n\nView Full Analysis & Report (HTML)"
   }
 ]
