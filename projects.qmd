@@ -18,8 +18,6 @@ The final project will follow a structured process to collect, clean, and analyz
 
 The interactive dashboard below provides a dynamic visualization of the study results, specifically focusing on the Mean Trust Score across all six Risk Groups and the accompanying statistical summary tables.
 
--  [**View Full Analysis & Report (HTML)**](https://kuanchenglee.shinyapps.io/flexdashboard/)
-
 
 
 
