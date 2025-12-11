@@ -1,15 +1,15 @@
 ---
 title: "Flexdashboard"
-output: 
+output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
 runtime: shiny
+resource_files:
+- SP25_602_omnibus_V1_May8.csv
 ---
 
 ```{r setup, include=FALSE}
-#install.packages('rsconnect')
-install.packages("shiny")
 library(flexdashboard)
 library(ggplot2)
 library(tidyverse) # Includes dplyr (for mutate, summarise) and readr (for read_csv)
@@ -29,7 +29,7 @@ library(plotly) # ADD THIS LINE
 ```{r data processing}
 # --- FIX: Ensure the data is loaded and assigned to a variable (e.g., 'data') ---
 # This fixes the 'mutate' error by making sure 'data' is a data frame.
-data <- read_csv("602/SP25_602_omnibus_V1_May8.csv", col_types = cols(.default = "c"))
+data <- read_csv("SP25_602_omnibus_V1_May8.csv", col_types = cols(.default = "c"))
 
 # Calculate summary statistics for the plot
 df_summary <- data %>%
