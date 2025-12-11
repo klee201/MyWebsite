@@ -10,7 +10,7 @@ website:
         text: Home
       - href: projects.qmd           # ADDED 'href' for projects page
         text: Projects
-      - href: dashboard.qmd          # ADD THIS: Link to your dashboard file
+      - href: flexdashboard.Rmd          # ADD THIS: Link to your dashboard file
         text: Dashboard              # ADD THIS: Display name in the navbar
       
     tools:

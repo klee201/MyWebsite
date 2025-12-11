@@ -4,14 +4,18 @@ output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+#install.packages('rsconnect')
+install.packages("shiny")
 library(flexdashboard)
 library(ggplot2)
 library(tidyverse) # Includes dplyr (for mutate, summarise) and readr (for read_csv)
 library(knitr)     # For kable (to create tables)
 library(stringr)   # For str_detect
+library(plotly) # ADD THIS LINE
 ```
 
 
@@ -81,23 +85,28 @@ Column {data-width=650}
 ### Chart A
 
 ```{r}
-# Bar chart using the summary data calculated in the previous chunk
-ggplot(df_summary, aes(x = G13_RiskGroup, y = mean_trust, fill = G13_RiskGroup)) +
+### Chart A (Interactive)
+# Save the ggplot object to a variable
+p <- ggplot(df_summary, aes(x = G13_RiskGroup, y = mean_trust, fill = G13_RiskGroup)) +
   geom_bar(stat = "identity", position = position_dodge(), color = "black") +
-  # Add error bars for 95% Confidence Intervals
-  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), 
+  # Use text aesthetic for custom tooltips (optional but better)
+  geom_errorbar(aes(ymin = ci_low, ymax = ci_high, 
+                    text = paste("Risk Group:", G13_RiskGroup, 
+                                 "<br>Mean Trust:", round(mean_trust, 2))),
                 width = 0.2, 
                 position = position_dodge(0.9)) +
   labs(
-    title = "Mean Trust in AI-Human Decision-Making by Risk Group",
+    title = "Mean Trust in AI-Human Decision-Making by Scenario Condition",
     x = "Scenario Condition",
     y = "Mean Trust Score (1 = Human alone to 5 = AI alone)",
     fill = "Risk Group"
   ) +
   scale_fill_brewer(palette = "Set3") +
   theme_minimal() +
-  # Rotate x-axis labels to prevent overlap
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Convert the ggplot object 'p' to a plotly object
+ggplotly(p, tooltip = "text") # The tooltip argument uses the text defined in geom_errorbar
 ```
 
 Column {data-width=350}
