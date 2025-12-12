@@ -186,3 +186,7 @@ plotly::ggplotly(p_hop_b) %>%
 plot(model4, which = 1)
 ```
 
+### Home returning
+
+-   [**Home**](index.qmd)
+
