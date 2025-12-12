@@ -599,6 +599,13 @@
     "href": "flexdashboard.html#column-1",
     "title": "Flexdashboard",
     "section": "Column",
-    "text": "Column\n\nEthical Concerns vs. Perceived Benefits\n\n# Create the ggplot object for the HOP graph (Chart B)\np_hop_b &lt;- ggplot(model_data, aes(x = benefit_index, y = ethics_index)) +\n  geom_ribbon(data = hop_data_b, \n              aes(ymin = lower, ymax = upper, x = benefit_index, y = predicted), \n              fill = \"lightblue\", alpha = 0.4, inherit.aes = FALSE) +\n  geom_point(alpha = 0.6, color = \"darkgray\", size = 2) +\n  geom_line(data = hop_data_b, \n            aes(y = predicted, x = benefit_index), \n            color = \"steelblue\", size = 1, inherit.aes = FALSE) +\n  labs(\n    title = \"Ethical Concerns by Perceived AI Benefits\",\n    x = \"Perceived Benefit Index\",\n    y = \"Ethical Concern Index\"\n  ) +\n  theme_minimal() +\n  scale_y_continuous(limits = c(2, 4.5), breaks = seq(2, 4.5, by = 0.5)) +\n  scale_x_continuous(limits = c(2, 4.5), breaks = seq(2, 4.5, by = 0.5))\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead.\n\nplotly::ggplotly(p_hop_b) %&gt;%\n  config(displayModeBar = FALSE)\n\n\n\n\n\n\n\nModel 4 Diagnostic Plot (Residuals vs. Fitted)\n\n# which=1 specifies the \"Residuals vs. Fitted\" plot\nplot(model4, which = 1)\n\n\n\n\n\n\n\n\n\n\nHome returning\n\nHome"
+    "text": "Column\n\nEthical Concerns vs. Perceived Benefits\n\n# Create the ggplot object for the HOP graph (Chart B)\np_hop_b &lt;- ggplot(model_data, aes(x = benefit_index, y = ethics_index)) +\n  geom_ribbon(data = hop_data_b, \n              aes(ymin = lower, ymax = upper, x = benefit_index, y = predicted), \n              fill = \"lightblue\", alpha = 0.4, inherit.aes = FALSE) +\n  geom_point(alpha = 0.6, color = \"darkgray\", size = 2) +\n  geom_line(data = hop_data_b, \n            aes(y = predicted, x = benefit_index), \n            color = \"steelblue\", size = 1, inherit.aes = FALSE) +\n  labs(\n    title = \"Ethical Concerns by Perceived AI Benefits\",\n    x = \"Perceived Benefit Index\",\n    y = \"Ethical Concern Index\"\n  ) +\n  theme_minimal() +\n  scale_y_continuous(limits = c(2, 4.5), breaks = seq(2, 4.5, by = 0.5)) +\n  scale_x_continuous(limits = c(2, 4.5), breaks = seq(2, 4.5, by = 0.5))\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead.\n\nplotly::ggplotly(p_hop_b) %&gt;%\n  config(displayModeBar = FALSE)\n\n\n\n\n\n\n\nModel 4 Diagnostic Plot (Residuals vs. Fitted)\n\n# which=1 specifies the \"Residuals vs. Fitted\" plot\nplot(model4, which = 1)"
+  },
+  {
+    "objectID": "flexdashboard.html#column-2",
+    "href": "flexdashboard.html#column-2",
+    "title": "Flexdashboard",
+    "section": "Column",
+    "text": "Column\n\nHome returning\n\nHome"
   }
 ]

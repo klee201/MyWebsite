@@ -186,7 +186,13 @@ plotly::ggplotly(p_hop_b) %>%
 plot(model4, which = 1)
 ```
 
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
 ### Home returning
+
+
 
 -   [**Home**](https://klee201.github.io/MyWebsite/)
 
