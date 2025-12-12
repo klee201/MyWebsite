@@ -7,16 +7,17 @@ about:
 ---
 
 ::: {#me}
-## Education
-
 I hold a Bachelor of Science degree in Computer Science from Arizona State University, and I am currently preparing to pursue a Master's degree in Data Analysis and Computational Social Science at the University of Massachusetts Amherst. My primary academic interest lies in **data analysis**, which is driven by my enthusiasm for collecting information from various platforms and employing analytical methods to uncover intriguing patterns and phenomena, particularly when working with **text as data**. I enjoy the process of transforming raw text into actionable insights and exploring the subtle nuances hidden within large textual datasets.
 
+## Education
 
+-   M.S. Data Analysis and Computational Social Science, The University of Massachusetts Amherst
+
+-   B.S. Computer Science, Arizona State University
 
 ## Resume
 
--  [**View Full Resume**](Lee-MasterResume-1020-DS_US.pdf)
-
+-   [**View Full Resume**](Lee-MasterResume-1020-DS_US.pdf)
 :::
 
 Thanks for checking out my web site!
