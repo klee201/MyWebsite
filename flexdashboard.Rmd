@@ -188,5 +188,5 @@ plot(model4, which = 1)
 
 ### Home returning
 
--   [**Home**](index.qmd)
+-   [**Home**](https://klee201.github.io/MyWebsite/)
 
