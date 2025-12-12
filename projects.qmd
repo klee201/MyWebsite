@@ -10,13 +10,10 @@ The raw dataset of approximately 8,000 YouTube comments, initially spread across
 
 ## 604 Final Project
 
-The final project will follow a structured process to collect, clean, and analyze data from YouTube news channels in order to explore public trust in AI. First of all, find the top three global news organizations, such as BBC News, CNN, and Reuters, based on their reputation and audience reach. After that, I will locate their official YouTube channels and select videos with the highest view counts that discuss AI-related topics or trust in AI. This ensures that the data reflects widely viewed content and captures a diverse audience perspective. The third process, using the YouTube API and collecting the comments from the videos that I have selected. After collecting the comments, a data cleaning process will be implemented to remove irrelevant content, such as comments unrelated to AI, spam, emojis, and other unnecessary symbols. This step ensures that the dataset contains meaningful textual information for analysis. After doing the first part of the data cleaning, the comments will be sorted into categories reflecting whether the commenter expresses trust, distrust, or neutral sentiment toward AI decision-making.
+This project explores public trust in AI by analyzing YouTube comments. The methodology involves: selecting top global news organizations (e.g., BBC, CNN) and identifying their most-viewed, AI-focused videos. Using the YouTube API, comments are collected, cleaned to remove spam and irrelevant content, and then categorized. The final step is sentiment analysis, sorting comments into three groups—trust, distrust, or neutral—to assess audience perception of AI decision-making.
 
 -  [**View Full Analysis & Report (HTML)**](docs/604/604_Final_check-in_2.html)
 
-## Dashboard
-
-The interactive dashboard below provides a dynamic visualization of the study results, specifically focusing on the Mean Trust Score across all six Risk Groups and the accompanying statistical summary tables.
 
 
 
