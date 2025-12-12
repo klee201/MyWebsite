@@ -16,24 +16,19 @@ library(tidyverse) # Includes dplyr (for mutate, summarise) and readr (for read_
 library(knitr)     # For kable (to create tables)
 library(stringr)   # For str_detect
 library(plotly) # ADD THIS LINE
+library(readr)
+library(tidyr)
+library(nnet)
 ```
 
-
-```{r data import}
-# import data
-# Read CSV file
-#data1 <- read_csv("602/SP25_602_omnibus_V1_May8.csv")
-
-```
-
-```{r data processing}
-# --- FIX: Ensure the data is loaded and assigned to a variable (e.g., 'data') ---
-# This fixes the 'mutate' error by making sure 'data' is a data frame.
+```{r data processing, include=FALSE}
+# Load data (using simple file path)
 data <- read_csv("SP25_602_omnibus_V1_May8.csv", col_types = cols(.default = "c"))
 
-# Calculate summary statistics for the plot
+# --- STATIC DATA SUMMARIZATION ---
+# This runs once on the full dataset, as there is no interactive filter.
 df_summary <- data %>%
-  # 1. Create G13_RiskGroup by extracting the scenario name from the column
+  # 1. Create G13_RiskGroup by extracting the scenario name
   mutate(
     G13_RiskGroup = case_when(
       str_detect(Group13_AITrust_DO, "HighRisk_1") ~ "HighRisk_1",
@@ -44,7 +39,7 @@ df_summary <- data %>%
       str_detect(Group13_AITrust_DO, "LowRisk_BlogWrit") ~ "LowRisk_BlogWrit",
       TRUE ~ "Unknown"
     ),
-    # 2. Convert G13_DV (dependent variable) to a numeric Likert scale (1 to 5)
+    # 2. Convert G13_DV to a numeric Likert scale (1 to 5)
     G13_DV_Likert = case_when(
       G13_DV == "Human alone" ~ 1,
       G13_DV == "Human assisted by AI" ~ 2,
@@ -64,77 +59,130 @@ df_summary <- data %>%
     n = n(),
     se = sd / sqrt(n),
     ci_low = mean_trust - 1.96 * se,
-    ci_high = mean_trust + 1.96 * se
+    ci_high = mean_trust + 1.96 * se,
+    .groups = 'drop'
   )
-
-# Create a simplified table of key t-test results based on confirmed findings
-ttest_results <- data.frame(
-  Comparison = c("HighRisk_1 vs. LowRisk_SongColl", "HighRisk_3 vs. LowRisk_SongColl", "HighRisk_2 vs. LowRisk_SongColl (Marginal)"),
-  t_stat = c(-2.58, -2.47, -1.89),
-  p_value = c(0.011, 0.015, 0.064),
-  HighRisk_Mean = c(2.02, 2.00, 2.14),
-  LowRisk_Mean = c(2.56, 2.56, 2.56)
-)
 ```
 
+```{r second data}
+# Data Processing for Chart B (Regression/HOP) AND Model 4 Setup
+# Assumes AI_Chatbots_Students_Attitude_Dataset_EN.csv
+data_b <- read_csv("AI_Chatbots_Students_Attitude_Dataset_EN.csv", col_types = cols(.default = "c"))
+
+# Define Likert scales
+Q1_likert_scale <- c("Bachelor" = 0, "Master" = 1)
+Q3_likert_scale <- c("Male" = 0, "Female" = 1)
+Q4_likert_scale <- c("Never"=1, "Rarely"=2, "Sometimes"=3, "Often"=4, "Very often"=5)
+likert_scale <- c("Strongly disagree"=1, "Disagree"=2, "Neutral"=3, "Agree"=4, "Strongly agree"=5)
+likert_cols <- grep("^Q[5-9]\\.", names(data_b), value = TRUE)
+
+# Prepare Data
+data_b$Q1 <- factor(data_b$Q1, levels = c('Bachelor', 'Master'), ordered = TRUE)
+data_b$Q2 <- factor(data_b$Q2, levels = c("Marketing", "Finance", "Accounting", "International Economic Relations", "Economics and Business", "Economics"), ordered = FALSE)
+data_b$Q2 <- relevel(data_b$Q2, ref = "Finance")
+data_b$Q3 <- factor(data_b$Q3, levels = c("Male", "Female"), ordered = TRUE)
+data_b$Q4 <- factor(data_b$Q4, levels = c("Never", "Rarely", "Sometimes", "Often", "Very often"), ordered = TRUE)
+
+for (col in likert_cols) {
+  data_b[[col]] <- ordered(data_b[[col]], levels = names(likert_scale))
+}
+
+# Create Indices and Final Modeling Dataframe
+model_data <- data_b %>%
+  mutate(across(all_of(likert_cols), ~ likert_scale[.])) %>%
+  mutate(
+    ethics_index = rowMeans(select(., matches("^Q7\\.|^Q9\\.")), na.rm = TRUE),
+    benefit_index = rowMeans(select(., starts_with("Q8.")), na.rm = TRUE),
+    Q1_likert = Q1_likert_scale[as.character(Q1)],
+    Q3_likert = Q3_likert_scale[as.character(Q3)]
+  ) %>%
+  select(ethics_index, benefit_index, Q2, Q1_likert, Q3_likert) %>%
+  na.omit()
 
 
-Column {data-width=650}
+# Fit Model 4 (used for Chart C)
+model4 <- lm(ethics_index ~ Q2 + Q1_likert + Q3_likert + benefit_index, data = model_data)
+
+
+# Prepare data for Chart B (HOP Graph)
+model_b <- lm(ethics_index ~ benefit_index, data = model_data) # Reduced model for the scatter plot line
+new_data_b <- data.frame(
+  benefit_index = seq(min(model_data$benefit_index, na.rm = TRUE), max(model_data$benefit_index, na.rm = TRUE), length.out = 100)
+)
+pred_b <- predict(model_b, newdata = new_data_b, interval = "prediction", level = 0.95)
+hop_data_b <- new_data_b %>%
+  mutate(predicted = pred_b[, "fit"], lower = pred_b[, "lwr"], upper = pred_b[, "upr"])
+```
+
+Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Chart A
+### Mean Trust in AI-Human Collaboration
 
-```{r}
-### Chart A (Interactive)
-# Save the ggplot object to a variable
-p <- ggplot(df_summary, aes(x = G13_RiskGroup, y = mean_trust, fill = G13_RiskGroup)) +
-  geom_bar(stat = "identity", position = position_dodge(), color = "black") +
-  # Use text aesthetic for custom tooltips (optional but better)
-  geom_errorbar(aes(ymin = ci_low, ymax = ci_high, 
-                    text = paste("Risk Group:", G13_RiskGroup, 
-                                 "<br>Mean Trust:", round(mean_trust, 2))),
-                width = 0.2, 
-                position = position_dodge(0.9)) +
+
+```{r interactive_chart}
+# Create the ggplot object using the static df_summary
+p <- ggplot(df_summary, # NOTE: Changed from reactive_df_summary()
+            aes(x = G13_RiskGroup, y = mean_trust, 
+                text = paste("Scenario:", G13_RiskGroup, 
+                             "<br>Mean Trust:", round(mean_trust, 3),
+                             "<br>95% CI: [", round(ci_low, 3), ", ", round(ci_high, 3), "]",
+                             "<br>N:", n))) +
+  
+  geom_point(size = 3, aes(color = G13_RiskGroup)) +
+  geom_errorbar(aes(ymin = ci_low, ymax = ci_high, color = G13_RiskGroup), 
+                width = 0.2) +
+  geom_hline(yintercept = 3, linetype = "dashed", color = "gray") +
+  
   labs(
     title = "Mean Trust in AI-Human Decision-Making by Scenario Condition",
     x = "Scenario Condition",
-    y = "Mean Trust Score (1 = Human alone to 5 = AI alone)",
-    fill = "Risk Group"
+    y = "Mean Trust Score (1 = Human alone to 5 = AI alone)"
   ) +
-  scale_fill_brewer(palette = "Set3") +
+  scale_color_brewer(palette = "Set3") + 
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10), 
+        legend.position = "none") 
 
-# Convert the ggplot object 'p' to a plotly object
-ggplotly(p, tooltip = "text") # The tooltip argument uses the text defined in geom_errorbar
+# Convert to interactive plotly object
+plotly::ggplotly(p, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
 ```
 
-Column {data-width=350}
+Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Chart B
+### Ethical Concerns vs. Perceived Benefits
 
 ```{r}
-# Use the ttest_results dataframe for a simple, clean table
-ttest_results %>%
-  select(Comparison, t_stat, p_value) %>%
-  knitr::kable(
-    caption = "Significant and Marginally Significant T-Test Comparisons",
-    col.names = c("Comparison", "$t$-statistic", "$p$-value"),
-    digits = 3
-  )
+# Create the ggplot object for the HOP graph (Chart B)
+p_hop_b <- ggplot(model_data, aes(x = benefit_index, y = ethics_index)) +
+  geom_ribbon(data = hop_data_b, 
+              aes(ymin = lower, ymax = upper, x = benefit_index, y = predicted), 
+              fill = "lightblue", alpha = 0.4, inherit.aes = FALSE) +
+  geom_point(alpha = 0.6, color = "darkgray", size = 2) +
+  geom_line(data = hop_data_b, 
+            aes(y = predicted, x = benefit_index), 
+            color = "steelblue", size = 1, inherit.aes = FALSE) +
+  labs(
+    title = "Ethical Concerns by Perceived AI Benefits",
+    x = "Perceived Benefit Index",
+    y = "Ethical Concern Index"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(limits = c(2, 4.5), breaks = seq(2, 4.5, by = 0.5)) +
+  scale_x_continuous(limits = c(2, 4.5), breaks = seq(2, 4.5, by = 0.5))
+
+plotly::ggplotly(p_hop_b) %>%
+  config(displayModeBar = FALSE)
 ```
 
-### Chart C
+
+
+### Model 4 Diagnostic Plot (Residuals vs. Fitted)
 
 ```{r}
-# Use the ttest_results dataframe for a simple, clean table
-ttest_results %>%
-  select(Comparison, HighRisk_Mean, LowRisk_Mean) %>%
-  knitr::kable(
-    caption = "Mean Trust Scores for Key Comparisons (1=Human, 5=AI)",
-    col.names = c("Comparison", "High-Risk Mean", "LowRisk_SongColl Mean"),
-    digits = 2
-  )
+# which=1 specifies the "Residuals vs. Fitted" plot
+plot(model4, which = 1)
 ```
 
