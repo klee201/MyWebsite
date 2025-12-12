@@ -5,7 +5,7 @@ account: kuanchenglee
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 16298947
-bundleId: 11311695
+bundleId: 11311845
 url: https://kuanchenglee.shinyapps.io/flexdashboard/
 version: 1
 asMultiple: FALSE
