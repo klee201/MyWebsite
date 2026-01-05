@@ -56,7 +56,7 @@ library(RColorBrewer)
 
 
 # ---- Load CSV ----
-common_file <- "Final_project_data/traditional_common_words_combined.csv"
+common_file <- "Final_project_data/common_words_across_files.csv"
 word_freq <- read_csv(common_file, show_col_types = FALSE)
 
 # Ensure frequencies are numeric
@@ -68,7 +68,7 @@ if(nrow(word_freq) > 0) {
   set.seed(1234)
   
   wordcloud(
-    words = word_freq$traditional_text,
+    words = word_freq$word,
     freq = word_freq$total_count,   # <-- USE THIS COLUMN
     min.freq = 1,
     max.words = 100,

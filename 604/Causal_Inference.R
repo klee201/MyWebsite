@@ -11,9 +11,13 @@ library(tibble) # 確保有 rownames_to_column
 # 1. 數據載入與準備
 # ----------------------------------------------------
 
-# 設定檔案路徑 (假設這些檔案位於 'Final_project_data/' 中)
-raw_file_list <- sprintf("Final_project_data/CN_SIMP%03d_comments_tokens.csv", 1:6)
+# 設定檔案路徑
+raw_file_list <- sprintf("Final_project_data/AI%03d_comments_tokens.csv", 1:6)
 lda_result_file <- "Final_project_data/lda_doc_topic_distr.csv"
+
+# 檢查 doc_topic_distr_df 的前幾行和欄位名稱
+print(head(doc_topic_distr_df))
+print(colnames(doc_topic_distr_df))
 
 # 載入所有原始 tokens 數據
 comments_raw <- raw_file_list %>%
@@ -27,11 +31,8 @@ comments_raw <- comments_raw %>%
 # 載入 LDA 結果 (主題概率)
 doc_topic_distr_df <- read_csv(lda_result_file)
 
-
-# 2. 重新創建 doc_id 並聚合 metrics
+# 2. 重新創建 doc_id 並聚合 metrics (修正以確保 doc_id 為整數)
 # ----------------------------------------------------
-
-# 計算 doc_id 
 comments_metrics <- comments_raw %>%
   mutate(
     is_new_comment = c(TRUE, diff(reply) != 0 | diff(likeCount) != 0),
@@ -43,43 +44,56 @@ comments_metrics <- comments_raw %>%
     likeCount = first(likeCount),
     reply = first(reply)
   ) %>%
-  ungroup()
+  ungroup() %>%
+  mutate(doc_id = as.integer(doc_id)) # 確保 doc_id 為整數
 
 
-# 3. 合併數據集
+# 3. 合併數據集並進行 Log 轉換
 # ----------------------------------------------------
 
-# 內連接 metrics 和主題概率數據集
+doc_topic_distr_df <- read_csv(lda_result_file) %>%
+  mutate(doc_id = as.integer(doc_id)) # 確保 doc_id 為整數
+
 merged_df <- comments_metrics %>%
-  inner_join(doc_topic_distr_df, by = "doc_id")
+  inner_join(doc_topic_distr_df, by = "doc_id") %>%
+  # *** 關鍵優化：Log 轉換依變數 ***
+  mutate(log_likeCount = log(likeCount + 1))
 
-# 4. OLS 迴歸分析 (主題概率 -> likeCount)
+
+# 4. OLS 迴歸分析 (使用 Log 轉換後的依變數並加入控制變數)
 # ----------------------------------------------------
 
-print("--- OLS Regression Results (Outcome: likeCount) ---")
-print("Reference Topic: V8 (PUA/Victim)")
+print("--- OLS Regression Results (Outcome: log(likeCount + 1)) ---")
+print("Reference Topic: V8 (PUA/Victim). Added Control Variable: reply")
 
-ols_model_likecount <- lm(
-  likeCount ~ V1 + V2 + V3 + V4 + V5 + V6 + V7, 
+ols_model_log_likecount <- lm(
+  log_likeCount ~ V1 + V2 + V3 + V4 + V5 + V6 + V7 + reply, # **加入 reply 作為控制變數**
   data = merged_df
 )
 
 # 打印完整的迴歸摘要
-model_summary <- summary(ols_model_likecount)
-print(model_summary)
+model_summary_log <- summary(ols_model_log_likecount)
+print(model_summary_log)
 
 
 # ----------------------------------------------------
 # 5. 結果提取與可視化 (R Markdown 優化)
 # ----------------------------------------------------
 
-# **關鍵修正：創建 results_df (修復 '找不到物件' 的錯誤)**
-coef_table <- as.data.frame(model_summary$coefficients)
+# 取得係數矩陣並轉為資料框
+coef_table <- as.data.frame(model_summary_log$coefficients)
 
 results_df <- coef_table %>%
-  setNames(c("Coef", "Std. Error", "t_value", "P_Value")) %>%
+  # *** 關鍵修正：明確只保留前四欄，以應對 4 欄或 5 欄的係數表格式 ***
+  select(1:4) %>% # 只選擇前 4 欄：Estimate, Std. Error, t value, P value
+  
+  # 現在我們確定只有 4 欄，可以安全地使用 4 個名稱
+  setNames(c("Coef", "Std. Error", "t_value", "P_Value")) %>% 
+  
+  # 將行名稱（即變數名稱 V1, V2, ...）轉換為名為 "Topic" 的新欄位
   rownames_to_column(var = "Topic") %>%
-  # 計算顯著性標記
+  
+  # 計算顯著性標記，並使用修正後的主題標籤
   mutate(
     Significance = case_when(
       P_Value < 0.001 ~ "***",
@@ -87,19 +101,23 @@ results_df <- coef_table %>%
       P_Value < 0.05 ~ "*",
       TRUE ~ ""
     ),
-    # 為 plotting 準備 Topic 標籤
+    # 修正主題標籤
     Topic_Label = case_when(
-      Topic == "(Intercept)" ~ "Intercept (Topic 8: PUA/Victim)",
-      Topic == "V1" ~ "V1 (Financial/Money I)",
-      Topic == "V2" ~ "V2 (Financial/Money II - Significant)",
-      Topic == "V3" ~ "V3 (Relationship & Emotion)",
-      Topic == "V4" ~ "V4 (Gender & Social Issues)",
-      Topic == "V5" ~ "V5 (Society & Media)",
-      Topic == "V6" ~ "V6 (Event Details & Questions)",
-      Topic == "V7" ~ "V7 (Values & Morality)",
+      Topic == "(Intercept)" ~ "Intercept (Ref. Topic 8: Sam Altman / Interview)",
+      Topic == "V1" ~ "V1 (People / Human / Technology)",
+      Topic == "V2" ~ "V2 (Models / Humanity / Technology)",
+      Topic == "V3" ~ "V3 (Art / Data / Artists)",
+      Topic == "V4" ~ "V4 (News / Fake / Video)",
+      Topic == "V5" ~ "V5 (Energy / Power / Change)",
+      Topic == "V6" ~ "V6 (Internet / Real / World)",
+      Topic == "V7" ~ "V7 (God / Life / Earth)",
+      Topic == "reply" ~ "Control: Reply Count", 
       TRUE ~ Topic
     )
   )
+
+# 顯示前幾行確認是否正確
+#print(head(results_df))
 
 # 可視化迴歸係數 (使用 ggplot2)
 p <- ggplot(results_df %>% filter(Topic != "(Intercept)"), 
@@ -110,9 +128,10 @@ p <- ggplot(results_df %>% filter(Topic != "(Intercept)"),
   # 調整顯著性標籤位置
   geom_text(aes(label = Significance, x = Coef + 0.1 * sign(Coef)), size = 5, hjust = 0, color = "black") + 
   scale_fill_manual(values = c("TRUE" = "#0072B2", "FALSE" = "gray70"), guide = "none") +
+  # 調整 ggplot 標籤
   labs(
-    title = "The impact of topic on the number of likes on comments",
-    subtitle = "Topic V2 (Finanace/PUA/Victim) Statistically significant positive effect(*)",
+    title = "The impact of topic on the log number of likes on comments",
+    subtitle = "Reference Topic V8: Sam Altman / Interview. Control: Reply Count.", # **更新這裡**
     x = "Regression Coefficient (Comparing to Topic 8)",
     y = "Topic"
   ) +

@@ -8,7 +8,7 @@ library(text2vec) # 用於 LDA 訓練
 library(readr)
 
 # 重新載入數據並創建 doc_id (確保文檔聚合的基礎)
-file_list <- sprintf("Final_project_data/CN_SIMP%03d_comments_tokens.csv", 1:6)
+file_list <- sprintf("Final_project_data/AI%03d_comments_tokens.csv", 1:6)
 
 comments <- file_list %>%
   map_df(~ read_csv(.x, show_col_types = FALSE))
